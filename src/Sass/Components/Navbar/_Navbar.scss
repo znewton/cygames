@@ -2,19 +2,65 @@
 	display: block;
 	position: relative;
 	width: 100vw;
+	height: $navbar_height;
 	box-sizing: border-box;
+	background-color: $cy_red;
+	color: $cy_off_white;
+	vertical-align: middle;
 	div {
 		position: relative;
 		width: 33%;
+		height: inherit;
+		box-sizing: border-box;
+		padding: 0.5em 0.5em;
 		display: inline-block;
 	}
 	.navbar-left{
 		text-align: left;
+		.menu-btn::before {
+			content: "";
+		}
+		.menu-btn::after{
+			content: "\f105";
+		}
+		.menu-btn.open::before {
+			content: "\f104";
+		}
+		.menu-btn.open::after{
+			content: "";
+		}
 	}
 	.navbar-middle{
 		text-align: center;
 	}
 	.navbar-right{
 		text-align: right;
+		.menu-btn::before {
+			content: "\f104";
+		}
+		.menu-btn::after{
+			content: "";
+		}
+		.menu-btn.open::before {
+			content: "";
+		}
+		.menu-btn.open::after{
+			content: "\f105";
+		}
+	}
+	.menu-btn {
+		font-size: 1.5em;
+		:hover {
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+			cursor: pointer;
+		}
+	}
+	.menu-btn::after, .menu-btn::before {
+		font-family: FontAwesome;
+		position: relative;
+		display: inline-block;
+		margin: 0 0.2em;
+		vertical-align: middle;
+		pointer-events: none;
 	}
 }
