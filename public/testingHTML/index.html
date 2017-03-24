@@ -5,12 +5,15 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<base href="/" />
 		<title>react-app</title>
-		<script src="/socket.io/socket.io.js"></script>
-    <script src="default.js"></script>
 	</head>
 	<body>
 		<p>
 			Hello world
 		</p>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+		const socket = io();
+		socket.emit("hello");
+</script>
 	</body>
 </html>
