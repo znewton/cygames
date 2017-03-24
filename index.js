@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const opn = require('opn');
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -13,3 +14,5 @@ app.get('*', function (request, response){
 
 app.listen(port);
 console.log("server started on port " + port);
+
+opn('http://localhost:'+port);

@@ -27,6 +27,7 @@
     "babel-preset-react": "^6.23.0",
     "css-loader": "^0.27.3",
     "node-sass": "^4.5.1",
+    "opn": "^4.0.2",
     "path": "^0.12.7",
     "sass-loader": "^6.0.3",
     "serve": "^5.0.4",
