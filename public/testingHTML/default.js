@@ -10,7 +10,10 @@ function login(){
 }
 
 function sendMessage(){
-  socket.emit('chat message', $('#m').val());
+  socket.emit('chat message', {
+    msg: $('#m').val(),
+    groupName: "Main Room"
+  });
   $('#m').val('');
   return false;
 }

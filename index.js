@@ -18,6 +18,7 @@ var config = {
 firebase.initializeApp(config);
 
 const database = firebase.database();
+
 var increment = 0;
 
 // serve static assets normally
@@ -34,48 +35,66 @@ app.get('*', function (request, response){
 console.log("server started on port " + port);
 
 io.on('connection', function(socket){
-	getAllMessages();
-
-	socket.on('hello',function () {
-		console.log("Hello there litte one");
-	});
+	console.log("User connected");
 
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
-		console.log('UserName is: '+msg.userName);
-		writeUserData(socket.userName);
+		writeUserData(socket.userName, "Real Name");
+		addUserToRoom(socket.userName, "Main Room");
+		getMessagesForRoom("Main Room");
 	});
 
 	socket.on('chat message', function(msg){
-			var messageString = msg.toString();
-			var message = socket.userName +":"+msg;
-			firebase.database().ref('message/m'+increment).set({
-					msg: msg,
-					sender: socket.userName
-			});
-			increment++;
-			socket.emit('chat message',message);
-			socket.broadcast.emit('chat message',message);
+		var messageData = {
+			message: msg.msg,
+			sender: socket.userName,
+			timestamp: 1
+		}
+			var newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
+
+		  // Write the new post's data simultaneously in the posts list and the user's post list.
+		  var updates = {};
+		  updates['/messages/'+ msg.groupName + "/" + newMessageKey] = messageData;
+
+		  firebase.database().ref().update(updates);
+			sendMessage(socket.userName, msg.msg);
+			broadcastMessage(socket.userName, msg.msg);
 	});
 
 	socket.on('disconnect', function(){
 			console.log('user disconnected');
-			firebase.database().ref('users/'+socket.id).remove();
+			firebase.database().ref('users/'+socket.userName).remove();
 	});
 
-	function getAllMessages() {
-		firebase.database().ref('message/').on('value',function(snapshot){
-			snapshot.forEach(function(childSnapshot){
-				var childData = childSnapshot.val();
-				socket.emit('chat message', childData.msg);
+	function getMessagesForRoom(groupName) {
+		firebase.database().ref('messages/'+ groupName).once('value').then(function(snapshot){
+			snapshot.forEach(function(messageID){
+				sendMessage(messageID.val().sender, messageID.val().message);
 			})
 		});
 	}
 
-	function writeUserData(screenName) {
+	function writeUserData(screenName,realName) {
 	  firebase.database().ref('users/' + screenName).set({
-				name: screenName
+				name: realName,
+				groups: {}
 	  });
+	}
+
+	function addUserToRoom(screenName, groupName){
+		var updates = {}
+		updates['/users/'+screenName+"/groups/"+groupName] = true;
+		updates['/groups/'+groupName+'/members/'+screenName] = true;
+
+		 firebase.database().ref().update(updates);
+	}
+
+	function sendMessage(sender, message){
+		socket.emit('chat message', sender + ": "+ message);
+	}
+
+	function broadcastMessage(sender, message){
+		socket.broadcast.emit('chat message', sender + ": "+ message);
 	}
 });
 
