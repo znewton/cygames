@@ -1,3 +1,12 @@
+//App wide styles
+@import "Essentials/theme";
+@import "Essentials/reset";
+@import "Essentials/mixins";
+//Component Styles
+@import "Components/Basic/Basic";
+@import "Components/Navbar/Navbar";
+
+
 .App > h1 {
 	background-color: #dddddd;
 	margin: 0;

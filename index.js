@@ -29,4 +29,4 @@ io.on('connection', function(socket){
 
 opn('http://localhost:'+port);
 
-opn('http://localhost:'+port+"/testing");
+// opn('http://localhost:'+port+"/testing");

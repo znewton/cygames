@@ -1,0 +1,20 @@
+.Navbar {
+	display: block;
+	position: relative;
+	width: 100vw;
+	box-sizing: border-box;
+	.navbar-left{
+		position: absolute;
+		width: 50%;
+		left: 0;
+		top: 0;
+		text-align: left;
+	}
+	.navbar-left{
+		position: absolute;
+		width: 50%;
+		right: 0;
+		top: 0;
+		text-align: right;
+	}
+}
