@@ -3,18 +3,18 @@
 	position: relative;
 	width: 100vw;
 	box-sizing: border-box;
-	.navbar-left{
-		position: absolute;
-		width: 50%;
-		left: 0;
-		top: 0;
-		text-align: left;
+	div {
+		position: relative;
+		width: 33%;
+		display: inline-block;
 	}
 	.navbar-left{
-		position: absolute;
-		width: 50%;
-		right: 0;
-		top: 0;
+		text-align: left;
+	}
+	.navbar-middle{
+		text-align: center;
+	}
+	.navbar-right{
 		text-align: right;
 	}
 }
