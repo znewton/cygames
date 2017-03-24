@@ -42,9 +42,8 @@ io.on('connection', function(socket){
 
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
+		console.log('UserName is: '+msg.userName);
 		writeUserData(socket.userName);
-		increment++;
-		sayHello();
 	});
 
 	socket.on('chat message', function(msg){
@@ -66,20 +65,17 @@ io.on('connection', function(socket){
 
 	function getAllMessages() {
 		firebase.database().ref('message/').on('value',function(snapshot){
-			console.log("Snapshot is: "+snapshot.val());
-			for(var object in snapshot.val()){
-				console.log(object.sender);
-			}
+			snapshot.forEach(function(childSnapshot){
+				var childData = childSnapshot.val();
+				socket.emit('chat message', childData.msg);
+			})
 		});
 	}
 
-	function writeUserData(name) {
-  firebase.database().ref('users/' + name).set({
-			name: name
-  });
-}
-	function sayHello(){
-		socket.emit('helloClient',{ username: socket.userName });
+	function writeUserData(screenName) {
+	  firebase.database().ref('users/' + screenName).set({
+				name: screenName
+	  });
 	}
 });
 
