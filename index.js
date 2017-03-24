@@ -3,6 +3,7 @@ const path = require('path');
 const opn = require('opn');
 const port = process.env.PORT || 3000;
 const app = express();
+const socket = require('socket.io');
 
 // serve static assets normally
 app.use(express.static(__dirname + '/public'));
