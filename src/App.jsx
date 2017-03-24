@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import './App.scss';
+import './Sass/App.scss';
 
-import Basic from './Basic/Basic.jsx';
+import Basic from './Components/Basic/Basic.jsx';
 
 export default class App extends Component {
 	constructor() {
