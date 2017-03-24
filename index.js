@@ -3,8 +3,8 @@ const path = require('path');
 const opn = require('opn');
 const port = process.env.PORT || 3000;
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const server = app.listen(port);
+const io = require('socket.io')(server);
 
 // serve static assets normally
 app.use(express.static(__dirname + '/public'));
@@ -17,11 +17,16 @@ app.get('*', function (request, response){
 	response.sendFile(path.resolve(__dirname, 'public', 'index.html'))
 });
 
-app.listen(port);
 console.log("server started on port " + port);
-
-opn('http://localhost:'+port);
 
 io.on('connection', function(socket){
 	console.log("new connection");
+
+	socket.on('hello',function(msg){
+		console.log("Hello there little one..");
+	});
 })
+
+opn('http://localhost:'+port);
+
+opn('http://localhost:'+port+"/testing");
