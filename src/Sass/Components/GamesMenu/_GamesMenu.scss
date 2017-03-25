@@ -1,0 +1,40 @@
+.GamesMenu {
+  position: absolute;
+  width: 20vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  padding-top: $navbar_height;
+  box-sizing: border-box;
+  background-color: desaturate($cy_gray, 10%);
+  z-index: 1;
+  a {
+    display: block;
+    background-color: lighten(desaturate($cy_off_white, 20%), 20%);
+    padding: 0.5em 1em;
+    text-decoration: none;
+    font-size: 1.2em;
+    color: $cy_font_color;
+    @include transition(background-color 75ms ease);
+    :hover {
+      background-color: desaturate($cy_off_white, 20%);
+    }
+  }
+  a.active {
+    background-color: lighten(desaturate($cy_off_white, 50%), 10%);
+  }
+  a + a{
+    border-top: 1px solid $cy_off_white;
+  }
+}
+.GamesMenu::after {
+  content: "";
+  pointer-events: none;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  @include box-shadow(inset -3px 0 7px -4px rgba(0,0,0,0.5), inset 0 -3px 10px -7px rgba(0,0,0,0.5));
+}

@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 
 export default class GamesMenu extends Component {
 	constructor() {
 		super();
-		this.state = {msg: 'GamesMenu Component'};
 	}
 	render() {
 		return (
 			<div className="GamesMenu">
-				{this.state.msg}
+				{this.props.routes.map((route,i) => (
+					<NavLink to={'/'+route.path} activeClassName={'active'} key={i} >{route.label}</NavLink>
+				))}
 			</div>
 		);
 	}

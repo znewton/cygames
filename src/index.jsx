@@ -8,9 +8,11 @@ import createBrowserHistory from 'history/createBrowserHistory';
 import App from './App.jsx';
 //Games imports
 import Pong from './Games/Pong/Pong.jsx';
+import Chess from './Games/Chess/Chess.jsx';
 
 const routes = [
-	{ path: 'pong', component: Pong }
+	{ path: 'pong', component: Pong, label: 'Pong' },
+	{ path: 'chess', component: Chess, label: 'Chess' },
 ];
 const history = createBrowserHistory();
 
