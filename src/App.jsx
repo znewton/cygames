@@ -6,9 +6,9 @@ import { Switch, Route } from 'react-router';
 import Navbar from './Components/Navbar/Navbar.jsx';
 import GamesMenu from './Components/GamesMenu/GamesMenu.jsx';
 import ChatBar from './Components/ChatBar/ChatBar.jsx';
-//Games imports
+import Main from './Components/Main/Main.jsx';
+//View Imports
 import Index from './Games/Index/Index.jsx';
-import Pong from './Games/Pong/Pong.jsx';
 import NotFound from './Games/NotFound/NotFound.jsx';
 
 export default class App extends Component {
@@ -34,15 +34,20 @@ export default class App extends Component {
 					chatBarToggle={() => this.handleChatBarToggle()}
 					chatBarOpen={this.state.chatBarOpen}
 				/>
-				<GamesMenu open={this.state.gameMenuOpen} />
-				<main>
+				<GamesMenu
+					open={this.state.gameMenuOpen}
+					routes={this.props.routes}
+				/>
+				<Main>
 					<Switch>
 						<Route exact path="/" component={Index}/>
-						<Route path="/pong" component={Pong} />
+						{this.props.routes.map((route) => <Route path={'/'+route.path} component={route.component} key={route.path} />)}
 						<Route component={NotFound} />
 					</Switch>
-				</main>
-				<ChatBar open={this.state.chatBarOpen} />
+				</Main>
+				<ChatBar
+					open={this.state.chatBarOpen}
+				/>
 			</div>
 		);
 	}

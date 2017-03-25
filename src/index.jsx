@@ -6,11 +6,16 @@ import { Router } from 'react-router';
 import createBrowserHistory from 'history/createBrowserHistory';
 //Component imports
 import App from './App.jsx';
+//Games imports
+import Pong from './Games/Pong/Pong.jsx';
 
+const routes = [
+	{ path: 'pong', component: Pong }
+];
 const history = createBrowserHistory();
 
 render((
 	<Router history={history}>
-		<App />
+		<App routes={routes} />
 	</Router>
 ), document.getElementById('root'));
