@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './Sass/App.scss';
 //Component imports
 import Navbar from './Components/Navbar/Navbar.jsx';
+import GamesMenu from './Components/GamesMenu/GamesMenu.jsx';
+import ChatBar from './Components/ChatBar/ChatBar.jsx';
 
 export default class App extends Component {
 	constructor() {
@@ -26,9 +28,9 @@ export default class App extends Component {
 					chatBarToggle={() => this.handleChatBarToggle()}
 					chatBarOpen={this.state.chatBarOpen}
 				/>
-				{/*<GameMenu />*/}
+				<GamesMenu />
 				{/*<Main />*/}
-				{/*<ChatBar />*/}
+				<ChatBar />
 			</div>
 		);
 	}
