@@ -7,13 +7,28 @@ export default class App extends Component {
 	constructor() {
 		super();
 		this.state = {
-			msg: 'Hello World'
+			gameMenuOpen: false,
+			chatBarOpen: false,
 		};
+	}
+	handleGameMenuToggle(){
+		this.setState({gameMenuOpen: !this.state.gameMenuOpen});
+	}
+	handleChatBarToggle(){
+		this.setState({chatBarOpen: !this.state.chatBarOpen});
 	}
 	render() {
 		return (
 			<div className="App">
-				<Navbar/>
+				<Navbar
+					gameMenuToggle={() => this.handleGameMenuToggle()}
+					gameMenuOpen={this.state.gameMenuOpen}
+					chatBarToggle={() => this.handleChatBarToggle()}
+					chatBarOpen={this.state.chatBarOpen}
+				/>
+				{/*<GameMenu />*/}
+				{/*<Main />*/}
+				{/*<ChatBar />*/}
 			</div>
 		);
 	}
