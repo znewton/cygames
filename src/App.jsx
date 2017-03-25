@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import './Sass/App.scss';
+//functional imports
+import { Switch, Route } from 'react-router';
 //Component imports
 import Navbar from './Components/Navbar/Navbar.jsx';
 import GamesMenu from './Components/GamesMenu/GamesMenu.jsx';
 import ChatBar from './Components/ChatBar/ChatBar.jsx';
+//Games imports
+import Index from './Games/Index/Index.jsx';
+import Pong from './Games/Pong/Pong.jsx';
+import NotFound from './Games/NotFound/NotFound.jsx';
 
 export default class App extends Component {
 	constructor() {
 		super();
 		this.state = {
-			gameMenuOpen: false,
-			chatBarOpen: false,
+			gameMenuOpen: true,
+			chatBarOpen: true,
 		};
 	}
 	handleGameMenuToggle(){
@@ -28,9 +34,15 @@ export default class App extends Component {
 					chatBarToggle={() => this.handleChatBarToggle()}
 					chatBarOpen={this.state.chatBarOpen}
 				/>
-				<GamesMenu />
-				{/*<Main />*/}
-				<ChatBar />
+				<GamesMenu open={this.state.gameMenuOpen} />
+				<main>
+					<Switch>
+						<Route exact path="/" component={Index}/>
+						<Route path="/pong" component={Pong} />
+						<Route component={NotFound} />
+					</Switch>
+				</main>
+				<ChatBar open={this.state.chatBarOpen} />
 			</div>
 		);
 	}

@@ -7,7 +7,9 @@ export default class GamesMenu extends Component {
 	}
 	render() {
 		return (
-			<div className="GamesMenu">{this.state.msg}</div>
+			<div className="GamesMenu">
+				{this.state.msg}
+			</div>
 		);
 	}
 }
