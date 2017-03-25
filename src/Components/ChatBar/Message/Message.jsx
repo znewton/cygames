@@ -9,3 +9,11 @@ export default class Message extends Component{
 		);
 	}
 }
+
+Message.propTypes = {
+	message: React.PropTypes.shape({
+		id: React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.number]),
+		sender: React.PropTypes.string,
+		text: React.PropTypes.string,
+	}).isRequired,
+};

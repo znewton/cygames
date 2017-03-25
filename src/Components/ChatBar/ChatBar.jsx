@@ -15,7 +15,7 @@ export default class ChatBar extends Component {
 	}
 	render() {
 		return (
-			<div className="ChatBar">
+			<div className={'ChatBar'+(this.props.open ? ' open' : '')}>
 				{this.state.messages.map(msg => (
 					<Message message={msg} key={msg.id} />
 				))}
@@ -23,3 +23,11 @@ export default class ChatBar extends Component {
 		);
 	}
 }
+
+ChatBar.propTypes = {
+	open: React.PropTypes.bool,
+};
+
+ChatBar.defaultProps = {
+	open: true,
+};

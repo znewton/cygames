@@ -52,3 +52,7 @@ export default class App extends Component {
 		);
 	}
 }
+
+App.propTypes = {
+	routes: React.PropTypes.array.isRequired,
+};

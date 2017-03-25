@@ -24,3 +24,10 @@ export default class Navbar extends Component {
 		);
 	}
 }
+
+Navbar.propTypes = {
+	gameMenuOpen: React.PropTypes.bool,
+	chatBarOpen: React.PropTypes.bool,
+	gameMenuToggle: React.PropTypes.func,
+	chatBarToggle: React.PropTypes.func,
+};
