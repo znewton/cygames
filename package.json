@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack -d --watch",
-    "build": "webpack --optimize-minimize -p",
+    "build": "webpack --optimize-minimize --progress -p",
     "serve": "node index.js"
   },
   "keywords": [

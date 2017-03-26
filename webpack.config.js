@@ -10,7 +10,7 @@ const config = {
 	entry: APP_DIR + '/index.jsx',
 	output: {
 		path: BUILD_DIR,
-		filename: 'bundle.js'
+		filename: 'bundle.min.js'
 	},
 	module : {
 		loaders : [
@@ -31,7 +31,7 @@ const config = {
 		]
 	},
 	plugins: [
-		new ExtractTextPlugin('bundle.css'),
+		new ExtractTextPlugin('bundle.min.css'),
 		new webpack.DefinePlugin({
 			'process.env': {
 				'NODE_ENV': JSON.stringify('production')
