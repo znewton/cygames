@@ -4,7 +4,7 @@
   position: absolute;
   width: 20vw;
   height: 100vh;
-  left: 80vw;
+  left: 100vw;
   top: 0;
   padding-top: $navbar_height;
   box-sizing: border-box;
@@ -21,4 +21,7 @@
   height: 100%;
   width: 100%;
   @include box-shadow(inset 3px 0 7px -4px rgba(0,0,0,0.5), inset 0 -3px 10px -7px rgba(0,0,0,0.5));
+}
+.ChatBar.open {
+  left: 80vw;
 }

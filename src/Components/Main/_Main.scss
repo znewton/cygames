@@ -1,6 +1,16 @@
 .Main {
   position: absolute;
-  width: 60vw;
-  left: 20vw;
+  width: 100vw;
+  left: 0;
   top: $navbar_height;
+}
+.Main.left-menu-open {
+  width: 80vw;
+  left: 20vw;
+}
+.Main.right-menu-open {
+  width: 80vw;
+}
+.Main.right-menu-open.left-menu-open {
+  width: 60vw;
 }

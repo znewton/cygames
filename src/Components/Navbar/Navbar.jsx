@@ -31,3 +31,8 @@ Navbar.propTypes = {
 	gameMenuToggle: React.PropTypes.func,
 	chatBarToggle: React.PropTypes.func,
 };
+
+Navbar.defaultProps = {
+	gameMenuOpen: true,
+	chatBarOpen: true,
+};

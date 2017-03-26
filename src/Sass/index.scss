@@ -6,4 +6,5 @@ body {
 	color: $cy_font_color;
 	@include font-size(14px);
 	font-family: $cy_font_stack;
+	overflow: hidden;
 }

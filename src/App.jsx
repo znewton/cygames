@@ -38,7 +38,10 @@ export default class App extends Component {
 					open={this.state.gameMenuOpen}
 					routes={this.props.routes.map(route => ({ path: route.path, label: route.label }))}
 				/>
-				<Main>
+				<Main
+					gameMenuOpen={this.state.gameMenuOpen}
+					chatBarOpen={this.state.chatBarOpen}
+				>
 					<Switch>
 						<Route exact path="/" component={Index}/>
 						{this.props.routes.map((route) => <Route path={'/'+route.path} component={route.component} key={route.path} />)}
