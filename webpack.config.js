@@ -4,6 +4,8 @@ const path = require('path');
 const BUILD_DIR = path.resolve(__dirname, 'public');
 const APP_DIR = path.resolve(__dirname, 'src');
 
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
 const config = {
 	entry: APP_DIR + '/index.jsx',
 	output: {
@@ -20,14 +22,23 @@ const config = {
 			{
 				test : /\.scss?/,
 				include : APP_DIR,
-				use : [
-					{loader : "style-loader"},
+				use : ExtractTextPlugin.extract([
+					// {loader : "style-loader"},
 					{loader : "css-loader"},
 					{loader : "sass-loader"}
-				]
+				])
 			}
 		]
-	}
+	},
+	plugins: [
+		new ExtractTextPlugin('bundle.css'),
+		new webpack.DefinePlugin({
+			'process.env': {
+				'NODE_ENV': JSON.stringify('production')
+			}
+		}),
+		new webpack.optimize.UglifyJsPlugin(),
+	]
 };
 
 module.exports = config;
