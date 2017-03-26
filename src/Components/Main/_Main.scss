@@ -1,16 +1,36 @@
 .Main {
   position: absolute;
+  z-index: 3;
   width: 100vw;
   left: 0;
   top: $navbar_height;
+  transform-origin: left;
+  @include transition(transform 125ms ease-out);
+  @include bp-large {
+    z-index: 1;
+    @include transition(none);
+    overflow: hidden;
+  }
 }
 .Main.left-menu-open {
   width: 80vw;
-  left: 20vw;
+  transform: translateX(20vw);
+  @include transition(transform 125ms ease-in);
+  @include bp-large {
+    transform: translateX(0);
+    @include transition(none);
+    width: 60vw;
+  }
 }
 .Main.right-menu-open {
   width: 80vw;
+  @include bp-large {
+    width: 100vw;
+  }
 }
 .Main.right-menu-open.left-menu-open {
   width: 60vw;
+  @include bp-large {
+    width: 100vw;
+  }
 }

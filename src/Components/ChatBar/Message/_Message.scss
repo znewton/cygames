@@ -1,0 +1,47 @@
+.Message {
+  position: relative;
+  width: 100%;
+  padding: 0 0.3em;
+  margin-top: 0.3em;
+  box-sizing: border-box;
+  overflow: hidden;
+  .sender {
+    position: relative;
+    width: 80%;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    color: darken($cy_gray, 50%);
+    padding-left: 0.5em;
+  }
+  .text {
+    position: relative;
+    display: inline-block;
+    max-width: 80%;
+    box-sizing: border-box;
+    padding: 0.5em 0.75em;
+    vertical-align: middle;
+    background-color: #ffffff;
+    @include border-radius(1em);
+    @extend %break-words;
+  }
+  .sender, .text {
+    transform-origin: bottom;
+    @include animation(grow-in 300ms ease);
+  }
+}
+.Message.User {
+  text-align: right;
+  .text {
+    text-align: left;
+    background-color: lighten(desaturate($cy_blue, 10%), 20%);
+    color: #ffffff;
+  }
+  .sender {
+    display: none;
+  }
+}
+
+@include keyframes(grow-in) {
+  0%  {  transform: translateY(100%); }
+  100%{ transform: translateY(0); }
+}

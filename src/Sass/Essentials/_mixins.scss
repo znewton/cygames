@@ -119,6 +119,11 @@ USAGE
 	-moz-box-shadow: $args;
 	box-shadow: $args;
 }
+@mixin border-radius($str) {
+	-webkit-border-radius: $str;
+	-moz-border-radius: $str;
+	border-radius: $str;
+}
 
 %clearfix {
 	*zoom: 1;
@@ -158,3 +163,14 @@ USAGE
   @extend %visuallyhidden;
 }
  */
+%break-words {
+	/* These are technically the same, but use both */
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+
+	/* Adds a hyphen where the word breaks, if supported (No Blink) */
+	-ms-hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	hyphens: auto;
+}

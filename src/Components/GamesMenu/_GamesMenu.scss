@@ -2,12 +2,13 @@
   position: absolute;
   width: 20vw;
   height: 100vh;
-  left: -20vw;
+  right: 100vw;
   top: 0;
   padding-top: $navbar_height;
   box-sizing: border-box;
   background-color: desaturate($cy_gray, 10%);
   z-index: 1;
+  @include transition(transform 125ms ease-out);
   a {
     display: block;
     background-color: lighten(desaturate($cy_off_white, 20%), 20%);
@@ -16,15 +17,25 @@
     font-size: 1.2em;
     color: $cy_font_color;
     @include transition(background-color 75ms ease);
-    :hover {
-      background-color: desaturate($cy_off_white, 20%);
-    }
+  }
+  a:hover {
+    background-color: lighten(desaturate($cy_blue, 40%), 30%);
   }
   a.active {
-    background-color: lighten(desaturate($cy_off_white, 50%), 10%);
+    background-color: lighten(desaturate($cy_blue, 40%), 50%);
   }
   a + a{
     border-top: 1px solid $cy_off_white;
+  }
+  @include bp-large {
+    width: 40vw;
+    z-index: 2;
+  }
+  @include bp-medium {
+    width: 80vw;
+  }
+  @include bp-small {
+    width: 100vw;
   }
 }
 .GamesMenu::after {
@@ -36,9 +47,15 @@
   left: 0;
   height: 100%;
   width: 100%;
+  z-index: 1;
   @include box-shadow(inset -3px 0 7px -4px rgba(0,0,0,0.5), inset 0 -3px 10px -7px rgba(0,0,0,0.5));
+  @include bp-large {
+    @include box-shadow(3px 0 7px -4px rgba(0,0,0,0.5), inset 0 -3px 10px -7px rgba(0,0,0,0.5));
+    z-index: -1;
+  }
 }
 
 .GamesMenu.open {
-  left: 0;
+  transform: translateX(100%);
+  @include transition(transform 125ms ease-in);
 }

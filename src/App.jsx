@@ -14,16 +14,29 @@ import NotFound from './Games/NotFound/NotFound.jsx';
 export default class App extends Component {
 	constructor() {
 		super();
-		this.state = {
-			gameMenuOpen: true,
-			chatBarOpen: true,
-		};
+		if(window.innerWidth < 962) {
+			this.state = {
+				gameMenuOpen: false,
+				chatBarOpen: false,
+			};
+		} else {
+			this.state = {
+				gameMenuOpen: true,
+				chatBarOpen: true,
+			};
+		}
 	}
 	handleGameMenuToggle(){
 		this.setState({gameMenuOpen: !this.state.gameMenuOpen});
 	}
 	handleChatBarToggle(){
 		this.setState({chatBarOpen: !this.state.chatBarOpen});
+	}
+	handleGameChange() {
+		if(window.innerWidth >= 962) {
+			return;
+		}
+		this.setState({gameMenuOpen: false})
 	}
 	render() {
 		return (
@@ -37,6 +50,7 @@ export default class App extends Component {
 				<GamesMenu
 					open={this.state.gameMenuOpen}
 					routes={this.props.routes.map(route => ({ path: route.path, label: route.label }))}
+					handleGameChange={() => this.handleGameChange()}
 				/>
 				<Main
 					gameMenuOpen={this.state.gameMenuOpen}
