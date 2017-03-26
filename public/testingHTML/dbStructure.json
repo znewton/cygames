@@ -1,0 +1,31 @@
+{
+  "users": {
+    "<userName>":{
+      "name": "<Real Name>",
+      "groups":{
+        "<Group Name>":true,
+      }
+    },
+    ...
+  },
+  "groups":{
+    "<Group Name>":{
+      "name": "<Full Name of Group",
+      "members":{
+        "<userName>":true,
+        ...
+      }
+    },
+    ...
+  },
+  "messages":{
+    "<Group Name>":{
+      "<Message ID>":{
+        "sender": "<userName>",
+        "message": "<some message>",
+        "timestamp": 1
+      },
+      ...
+    }
+  }
+}
