@@ -90,11 +90,11 @@ io.on('connection', function(socket){
 	}
 
 	function sendMessage(sender, message){
-		socket.emit('chat message', sender + ": "+ message);
+		socket.emit('chat message', {sender: sender, message: message});
 	}
 
 	function broadcastMessage(sender, message){
-		socket.broadcast.emit('chat message', sender + ": "+ message);
+		socket.broadcast.emit('chat message', {sender: sender, message: message});
 	}
 });
 
