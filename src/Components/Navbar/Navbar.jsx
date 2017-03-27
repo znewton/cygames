@@ -13,6 +13,10 @@ export default class Navbar extends Component {
 				</div>
 				<div className="navbar-middle">
 					<Link to="/"><h2>CyGames</h2></Link>
+					<span className="settings-btn">
+						<i className="fa fa-cog fa-fw"
+							title="Open Settings Menu" />
+					</span>
 				</div>
 				<div className="navbar-right">
 					<span className={"menu-btn"+(this.props.chatBarOpen ? ' open' : '')} onClick={() => this.props.chatBarToggle()}>

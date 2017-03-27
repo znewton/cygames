@@ -34,6 +34,9 @@
 	}
 	.navbar-middle{
 		text-align: center;
+		h2 {
+			display: inline-block;
+		}
 	}
 	.navbar-right{
 		text-align: right;
@@ -52,10 +55,10 @@
 	}
 	.menu-btn {
 		font-size: 1.5em;
-		:hover {
-			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-			cursor: pointer;
-		}
+	}
+	.menu-btn:hover {
+		text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+		cursor: pointer;
 	}
 	.menu-btn::after, .menu-btn::before {
 		font-family: FontAwesome;
@@ -68,9 +71,32 @@
 	a {
 		text-decoration: none;
 		color: inherit;
-		:hover {
-			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-			cursor: pointer;
+	}
+	a:hover {
+		text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+		cursor: pointer;
+	}
+	.settings-btn {
+		margin-left: 0.75em;
+		font-size: 1.2em;
+		transform-origin: center;
+		position: relative;
+		i::before {
+			position: absolute;
+			top: 0;
+			left: 0;
 		}
 	}
+	.settings-btn:hover {
+		text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+		cursor: pointer;
+		i::before{
+			@include animation(spin 4s infinite linear)
+		}
+	}
+}
+
+@include keyframes(spin) {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
 }
