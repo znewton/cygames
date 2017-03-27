@@ -4,6 +4,7 @@ export default class Index extends Component {
 	constructor() {
 		super();
 		this.state = {msg: 'Index Component'};
+		document.title = 'cygames';
 	}
 	render() {
 		return (

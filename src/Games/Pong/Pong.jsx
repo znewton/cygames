@@ -4,6 +4,7 @@ export default class Pong extends Component {
 	constructor() {
 		super();
 		this.state = {msg: 'Pong Component'};
+		document.title = 'Pong | cygames';
 	}
 	render() {
 		return (

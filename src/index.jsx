@@ -21,3 +21,37 @@ render((
 		<App routes={routes} />
 	</Router>
 ), document.getElementById('root'));
+
+// main visibility API function
+// use visibility API to check if current tab is active or not
+const vis = (function(){
+	let stateKey,
+		eventKey,
+		keys = {
+			hidden: "visibilitychange",
+			webkitHidden: "webkitvisibilitychange",
+			mozHidden: "mozvisibilitychange",
+			msHidden: "msvisibilitychange"
+		};
+	for (stateKey in keys) {
+		if (stateKey in document) {
+			eventKey = keys[stateKey];
+			break;
+		}
+	}
+	return function(c) {
+		if (c) document.addEventListener(eventKey, c);
+		return !document[stateKey];
+	}
+})();
+let previous_title = 'cygames';
+// check if current tab is active or not
+vis(function(){
+
+	if(vis()){
+		document.title = previous_title;
+	} else {
+		previous_title = document.title;
+		document.title = 'Come back ☹ | cygames'
+	}
+});

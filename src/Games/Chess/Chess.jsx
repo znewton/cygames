@@ -4,6 +4,7 @@ export default class Chess extends Component {
 	constructor() {
 		super();
 		this.state = {msg: 'Chess Component'};
+		document.title = 'Chess | cygames';
 	}
 	render() {
 		return (
