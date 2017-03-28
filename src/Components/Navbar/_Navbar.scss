@@ -36,6 +36,9 @@
 		text-align: center;
 		h2 {
 			display: inline-block;
+			@include bp-medium {
+				font-size: 0.8em;
+			}
 		}
 	}
 	.navbar-right{

@@ -17,6 +17,7 @@ export default class Navbar extends Component {
 						<i className="fa fa-cog fa-fw"
 							title="Open Settings Menu" />
 					</span>
+
 				</div>
 				<div className="navbar-right">
 					<span className={"menu-btn"+(this.props.chatBarOpen ? ' open' : '')} onClick={() => this.props.chatBarToggle()}>
