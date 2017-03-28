@@ -36,6 +36,7 @@ console.log("server started on port " + port);
 
 io.on('connection', function(socket){
 	console.log("User connected");
+	socket.emit('recieveConfig',{data: config});
 
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
@@ -63,8 +64,37 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 			console.log('user disconnected');
-			firebase.database().ref('users/'+socket.userName).remove();
+			firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
+				snapshot.forEach(function(groupID){
+					firebase.database().ref('groups/'+groupID.key+'/members/'+socket.userName).remove();
+				});
+				firebase.database().ref('users/'+socket.userName).remove();
+			});
 	});
+
+	function createRoom(groupName){
+		firebase.database().ref('groups/'+groupName).set({
+			members: {},
+			name: groupName
+		});
+	}
+
+	function deleteRoom(groupName){
+		socket.emit('signOut');
+		firebase.database().ref('groups/'+groupName).remove();
+		firebase.database().ref('users/').once('value').then(function(snapshot){
+			snapshot.forEach(function(user){
+				firebase.database().ref('users/'+user.key+'/groups/').once('value').then(function(groupID){
+					console.log(groupID.val());
+					for (var key in groupID.val()) {
+						if(key == groupName){
+							firebase.database().ref('users/'+user.key+'/groups/'+key).remove();
+						}
+					}
+				});
+			})
+		})
+	}
 
 	function getMessagesForRoom(groupName) {
 		firebase.database().ref('messages/'+ groupName).once('value').then(function(snapshot){
