@@ -36,6 +36,7 @@ console.log("server started on port " + port);
 
 io.on('connection', function(socket){
 	console.log("User connected");
+	socket.emit('recieveConfig',{data: config});
 
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
@@ -79,6 +80,7 @@ io.on('connection', function(socket){
 	}
 
 	function deleteRoom(groupName){
+		socket.emit('signOut');
 		firebase.database().ref('groups/'+groupName).remove();
 		firebase.database().ref('users/').once('value').then(function(snapshot){
 			snapshot.forEach(function(user){
