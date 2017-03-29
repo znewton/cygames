@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Login | cygames</title>
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<meta name="google-signin-client_id" content="175107300140-boqgi72aqr5m56psucvafq5obna5ovl8.apps.googleusercontent.com">
+	<meta name="google-signin-cookiepolicy" content="single_host_origin">
+	<meta name="google-signin-scope" content="profile email">
+</head>
+<body>
+<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+<script>
+	// Initialize Firebase
+	// TODO: Replace with your project's customized code snippet
+	var config = {
+		apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
+		authDomain: "cygames-c3548.firebaseapp.com",
+		databaseURL: "https://cygames-c3548.firebaseio.com",
+		storageBucket: "cygames-c3548.appspot.com",
+		messagingSenderId: "175107300140"
+	};
+	firebase.initializeApp(config);
+	console.log(firebase);
+	function onSignIn(googleUser) {
+		console.log('Google Auth Response', googleUser);
+		// We need to register an Observer on Firebase Auth to make sure auth is initialized.
+		var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser) {
+			unsubscribe();
+			// Check if we are already signed-in Firebase with the correct user.
+			if (!isUserEqual(googleUser, firebaseUser)) {
+				// Build Firebase credential with the Google ID token.
+				var credential = firebase.auth.GoogleAuthProvider.credential(
+					googleUser.getAuthResponse().id_token);
+				// Sign in with credential from the Google user.
+				firebase.auth().signInWithCredential(credential).catch(function(error) {
+					// Handle Errors here.
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					// The email of the user's account used.
+					var email = error.email;
+					// The firebase.auth.AuthCredential type that was used.
+					var credential = error.credential;
+					// ...
+				});
+			} else {
+				console.log('User already signed-in Firebase.');
+			}
+		});
+	}
+	function isUserEqual(googleUser, firebaseUser) {
+		if (firebaseUser) {
+			var providerData = firebaseUser.providerData;
+			for (var i = 0; i < providerData.length; i++) {
+				if (providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+					providerData[i].uid === googleUser.getBasicProfile().getId()) {
+					// We don't need to reauth the Firebase connection.
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+//	function onSignIn(googleUser) {
+//		console.log(googleUser);
+//		var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
+//		xmlhttp.onreadystatechange = function () {
+//			if(xmlhttp.readyState == 4) {
+//				console.log(xmlhttp.response);
+//			}
+//		};
+//		xmlhttp.open("POST", "/login");
+//		xmlhttp.setRequestHeader("Content-Type", "application/json");
+//		xmlhttp.send(JSON.stringify({token: googleUser.getAuthResponse().id_token}));
+//	}
+</script>
+
+</body>
+</html>

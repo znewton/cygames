@@ -4,6 +4,8 @@ import './Sass/index.scss';
 //functional imports
 import { Router } from 'react-router';
 import createBrowserHistory from 'history/createBrowserHistory';
+import axios from 'axios';
+import * as firebase from 'firebase';
 //Component imports
 import App from './App.jsx';
 //Games imports
@@ -11,14 +13,14 @@ import Pong from './Games/Pong/Pong.jsx';
 import Chess from './Games/Chess/Chess.jsx';
 
 const routes = [
-	{ path: 'pong', component: Pong, label: 'Pong' },
-	{ path: 'chess', component: Chess, label: 'Chess' },
+	{path: 'pong', component: Pong, label: 'Pong'},
+	{path: 'chess', component: Chess, label: 'Chess'},
 ];
 const history = createBrowserHistory();
 
 render((
 	<Router history={history}>
-		<App routes={routes} />
+		<App routes={routes} user={user}/>
 	</Router>
 ), document.getElementById('root'));
 

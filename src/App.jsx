@@ -25,6 +25,7 @@ export default class App extends Component {
 				chatBarOpen: true,
 			};
 		}
+		console.log(this.props.user);
 	}
 	handleGameMenuToggle(){
 		this.setState({gameMenuOpen: !this.state.gameMenuOpen});
@@ -72,4 +73,5 @@ export default class App extends Component {
 
 App.propTypes = {
 	routes: React.PropTypes.array.isRequired,
+	user: React.PropTypes.object,
 };

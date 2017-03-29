@@ -3,12 +3,18 @@ import React, { Component } from 'react';
 export default class Index extends Component {
 	constructor() {
 		super();
-		this.state = {msg: 'Index Component'};
 		document.title = 'cygames';
+	}
+	handleSubmit(e) {
+		e.preventDefault();
 	}
 	render() {
 		return (
-			<div className="Index">{this.state.msg}</div>
+			<div className="Index">
+				<form>
+					<button onClick={this.handleSubmit.bind(this)}>Login</button>
+				</form>
+			</div>
 		);
 	}
 }
