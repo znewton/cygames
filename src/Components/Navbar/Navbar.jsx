@@ -13,6 +13,12 @@ export default class Navbar extends Component {
 				</div>
 				<div className="navbar-middle">
 					<Link to="/"><h2>CyGames</h2></Link>
+					{this.props.user === null ?
+						<button onClick={() => this.props.login()}>Login</button> :
+						<span>
+							<img src={this.props.user.photoURL} />
+						</span>
+					}
 				</div>
 				<div className="navbar-right">
 					<span className={"menu-btn"+(this.props.chatBarOpen ? ' open' : '')} onClick={() => this.props.chatBarToggle()}>
@@ -30,6 +36,8 @@ Navbar.propTypes = {
 	chatBarOpen: React.PropTypes.bool,
 	gameMenuToggle: React.PropTypes.func,
 	chatBarToggle: React.PropTypes.func,
+	login: React.PropTypes.func,
+	user: React.PropTypes.object,
 };
 
 Navbar.defaultProps = {

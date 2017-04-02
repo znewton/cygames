@@ -30,27 +30,6 @@ app.use(express.static(__dirname + '/public'));
 app.get('/testing', function (request, response){
 	response.sendFile(path.resolve(__dirname, 'public/testingHTML', 'index.html'))
 });
-app.get('/login', function (request, response) {
-	response.sendFile(path.resolve(__dirname, 'public', 'login.html'))
-});
-app.post('/login', function (request, response){
-	console.log('request',request);
-	var id_token = request.data.token;
-	var credential = firebase.auth.GoogleAuthProvider.credential(id_token);
-
-// Sign in with credential from the Google user.
-	firebase.auth().signInWithCredential(credential).catch(function(error) {
-		// Handle Errors here.
-		var errorCode = error.code;
-		var errorMessage = error.message;
-		// The email of the user's account used.
-		var email = error.email;
-		// The firebase.auth.AuthCredential type that was used.
-		var credential = error.credential;
-		// ...
-	});
-	response.statuse(200).send('Great Success');
-});
 app.post('*', function (request, response) {
 	console.log('post');
 });

@@ -31,14 +31,33 @@
 		.menu-btn.open::after{
 			content: "";
 		}
+		@include bp-medium {
+			width: 20%;
+		}
 	}
 	.navbar-middle{
 		text-align: center;
 		h2 {
 			display: inline-block;
-			@include bp-medium {
-				font-size: 0.8em;
+		}
+		img {
+			display: inline-block;
+			vertical-align: middle;
+			height: 2em;
+			width: 2em;
+			border-radius: 50%;
+			margin: 0 1em;
+			&:hover {
+				cursor: pointer;
+				box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 			}
+			@include bp-medium {
+				height: 1.75em;
+				width: 1.75em;
+			}
+		}
+		@include bp-medium {
+			width: 60%;
 		}
 	}
 	.navbar-right{
@@ -54,6 +73,9 @@
 		}
 		.menu-btn.open::after{
 			content: "\f105";
+		}
+		@include bp-medium {
+			width: 20%;
 		}
 	}
 	.menu-btn {

@@ -2,10 +2,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import './Sass/index.scss';
 //functional imports
-import { Router } from 'react-router';
-import createBrowserHistory from 'history/createBrowserHistory';
-import axios from 'axios';
-import * as firebase from 'firebase';
+import { BrowserRouter } from 'react-router-dom';
+import firebase from 'firebase';
 //Component imports
 import App from './App.jsx';
 //Games imports
@@ -16,12 +14,21 @@ const routes = [
 	{path: 'pong', component: Pong, label: 'Pong'},
 	{path: 'chess', component: Chess, label: 'Chess'},
 ];
-const history = createBrowserHistory();
+const config = {
+	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
+	authDomain: "cygames-c3548.firebaseapp.com",
+	databaseURL: "https://cygames-c3548.firebaseio.com",
+	storageBucket: "cygames-c3548.appspot.com",
+	messagingSenderId: "175107300140"
+};
+
+firebase.initializeApp(config);
+let provider = new firebase.auth.GoogleAuthProvider();
 
 render((
-	<Router history={history}>
-		<App routes={routes} user={user}/>
-	</Router>
+	<BrowserRouter>
+		<App routes={routes} provider={provider}/>
+	</BrowserRouter>
 ), document.getElementById('root'));
 
 // main visibility API function

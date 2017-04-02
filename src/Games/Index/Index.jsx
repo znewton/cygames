@@ -5,16 +5,13 @@ export default class Index extends Component {
 		super();
 		document.title = 'cygames';
 	}
-	handleSubmit(e) {
-		e.preventDefault();
-	}
 	render() {
 		return (
-			<div className="Index">
-				<form>
-					<button onClick={this.handleSubmit.bind(this)}>Login</button>
-				</form>
-			</div>
+			<section className="Index">
+				<h1>Welcome to CyGames!</h1>
+				<p>To play a game, select one from the games bar on the left.</p>
+				<p>To chat, open up the chat bar on the right!</p>
+			</section>
 		);
 	}
 }

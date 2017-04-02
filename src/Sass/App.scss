@@ -3,8 +3,10 @@
 @import "Essentials/reset";
 @import "Essentials/mixins";
 //Component Styles
-@import "../Components/Basic/_Basic";
-@import "../Components/Navbar/_Navbar";
-@import "../Components/GamesMenu/_GamesMenu";
-@import "../Components/ChatBar/_ChatBar";
-@import "../Components/Main/_Main";
+@import "../Components/Basic/Basic";
+@import "../Components/Navbar/Navbar";
+@import "../Components/GamesMenu/GamesMenu";
+@import "../Components/ChatBar/ChatBar";
+@import "../Components/Main/Main";
+//Game Styles
+@import "../Games/NotFound/NotFound";
