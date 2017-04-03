@@ -42,7 +42,6 @@
     "webpack": "^2.2.1"
   },
   "babel": {
-	"presets" : ["es2015", "react"]
+		"presets" : ["es2015", "react"]
   }
-
 }
