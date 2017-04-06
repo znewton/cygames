@@ -5,9 +5,12 @@ export default class Navbar extends Component {
 	render() {
 		return (
 			<nav className="Navbar">
-				{/*<section className={"UserMenuCover" + (this.props.userMenuOpen ? ' open':'')} onClick={() => this.props.userMenuToggle()} />*/}
+				<section className={"UserMenuCover" + (this.props.userMenuOpen ? ' open':'')} onClick={() => this.props.userMenuToggle()} />
 				<div className="navbar-left">
-					<span className={"menu-btn"+(this.props.gameMenuOpen ? ' open' : '')} onClick={() => this.props.gameMenuToggle()}>
+					<span
+						className={"menu-btn"+(this.props.gameMenuOpen ? ' open' : '')}
+						onClick={() => this.props.gameMenuToggle()}
+					>
 						<i className="fa fa-gamepad fa-fw"
 							 title="Open Games Menu"/>
 					</span>
@@ -15,7 +18,12 @@ export default class Navbar extends Component {
 				<div className="navbar-middle">
 					<Link to="/"><h2>CyGames</h2></Link>
 					{this.props.user === null ?
-						<button className="login" onClick={() => this.props.login()}><i className="fa fa-sign-in" /> Login</button> :
+						<button
+							className="login"
+							onClick={() => this.props.login()}
+						>
+							<i className="fa fa-sign-in" /> Login
+						</button> :
 						<span onClick={() => this.props.userMenuToggle()} >
 							<img src={this.props.user.photoURL} />
 						</span>
@@ -27,7 +35,10 @@ export default class Navbar extends Component {
 					</section>
 				</div>
 				<div className="navbar-right">
-					<span className={"menu-btn"+(this.props.chatBarOpen ? ' open' : '')} onClick={() => this.props.chatBarToggle()}>
+					<span
+						className={"menu-btn"+(this.props.chatBarOpen ? ' open' : '')}
+						onClick={() => this.props.chatBarToggle()}
+					>
 						<i className="fa fa-comments fa-fw"
 							 title="Open Chat Bar"/>
 					</span>
