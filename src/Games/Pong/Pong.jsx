@@ -13,9 +13,14 @@ export default class Pong extends Component {
 		document.title = 'Pong | cygames';
 	}
 	componentDidMount() {
-		let size = document.getElementById('main').offsetWidth;
+		let main = document.getElementById('main');
+		let size = main.offsetWidth;
 		this.setState({width: size, height: size/2});
 		let self = this;
+		new ResizeSensor(main, () => {
+			let size = document.getElementById('main').offsetWidth;
+			self.setState({width: size, height: size/2});
+		});
 		window.addEventListener('resize', () => {
 			waitForFinalEvent(() =>{
 				let size = document.getElementById('main').offsetWidth;
