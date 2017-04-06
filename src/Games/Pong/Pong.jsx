@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import { ResizeSensor } from 'css-element-queries'
 import { waitForFinalEvent } from '../../Helpers/helpers.jsx';
 
 export default class Pong extends Component {
