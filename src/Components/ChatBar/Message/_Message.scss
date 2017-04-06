@@ -1,7 +1,7 @@
 .Message {
   position: relative;
   width: 100%;
-  padding: 0 0.3em;
+  padding: 0.1em 0.3em;
   margin-top: 0.3em;
   box-sizing: border-box;
   overflow: hidden;
@@ -21,7 +21,7 @@
     padding: 0.5em 0.75em;
     vertical-align: middle;
     background-color: #ffffff;
-    @include border-radius(1em);
+    @include border-radius(0 1em 1em 1em);
     @extend %break-words;
   }
   .sender, .text {
@@ -32,9 +32,10 @@
 .Message.User {
   text-align: right;
   .text {
-    text-align: left;
+    text-align: right;
     background-color: lighten(desaturate($cy_blue, 10%), 20%);
     color: #ffffff;
+    @include border-radius(1em 1em 0 1em);
   }
   .sender {
     display: none;

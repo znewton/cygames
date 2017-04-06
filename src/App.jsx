@@ -19,11 +19,13 @@ export default class App extends Component {
 			this.state = {
 				gameMenuOpen: false,
 				chatBarOpen: false,
+				userMenuOpen: false
 			};
 		} else {
 			this.state = {
 				gameMenuOpen: true,
 				chatBarOpen: true,
+				userMenuOpen: false,
 			};
 		}
 		this.state.userDetails = null;
@@ -60,25 +62,48 @@ export default class App extends Component {
 			.then(result => {
 				let token = result.credential.accessToken;
 				let googleUser = result.user;
-				let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
-					unsubscribe();
-					if (!this.isUserEqual(googleUser, firebaseUser)) {
-						let credential = firebase.auth.GoogleAuthProvider.credential(
-							googleUser.getAuthResponse().id_token);
-						firebase.auth().signInWithCredential(credential).catch(error => {console.log(error)});
-					} else {
-						console.log('User already signed-in Firebase');
-					}
-				}, error => {console.log(error)});
+				// let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
+				// 	unsubscribe();
+				// 	if (!this.isUserEqual(googleUser, firebaseUser)) {
+				// 		let credential = firebase.auth.GoogleAuthProvider.credential(token);
+				// 		firebase.auth().signInWithCredential(credential).catch(error => {console.log(error)});
+				// 	} else {
+				// 		console.log('User already signed-in Firebase');
+				// 	}
+				// }, error => {console.log(error)});
 			})
 			.catch(error => {console.log(error)});
 
+	}
+	isUserEqual(googleUser, firebaseUser) {
+		if (firebaseUser) {
+			let providerData = firebaseUser.providerData;
+			for (let i = 0; i < providerData.length; i++) {
+				if (providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+					providerData[i].uid === googleUser.uid) {
+					// We don't need to reauth the Firebase connection.
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	handleLogout() {
+		firebase.auth().signOut().then(function() {
+			// Sign-out successful.
+			this.setState({userDetails: null, userMenuOpen: false});
+		}).catch(function(error) {
+			// An error happened.
+		});
 	}
 	handleGameMenuToggle(){
 		this.setState({gameMenuOpen: !this.state.gameMenuOpen, chatBarOpen: window.innerWidth < 962 ? false : this.state.chatBarOpen});
 	}
 	handleChatBarToggle(){
 		this.setState({chatBarOpen: !this.state.chatBarOpen, gameMenuOpen: window.innerWidth < 962 ? false : this.state.gameMenuOpen});
+	}
+	handleUserMenuToggle(){
+		this.setState({userMenuOpen: !this.state.userMenuOpen});
 	}
 	handleGameChange() {
 		if(window.innerWidth >= 962) return;
@@ -92,7 +117,10 @@ export default class App extends Component {
 					gameMenuOpen={this.state.gameMenuOpen}
 					chatBarToggle={() => this.handleChatBarToggle()}
 					chatBarOpen={this.state.chatBarOpen}
+					userMenuToggle={() => this.handleUserMenuToggle()}
+					userMenuOpen={this.state.userMenuOpen}
 					login={()=> this.handleLogin()}
+					logout={()=> this.handleLogout()}
 					user={this.state.userDetails}
 				/>
 				<GamesMenu

@@ -5,6 +5,8 @@ import firebase from 'firebase';
 const io = require('socket.io-client');
 const socket = io();
 
+const rooms = ['Main Room', 'Pong', 'Chess'];
+
 export default class ChatBar extends Component {
 	constructor(props) {
 		super(props);
@@ -27,11 +29,15 @@ export default class ChatBar extends Component {
 	}
 	handleMessageReceive(msg) {
 		let messages = this.state.messages;
-		messages.push({
-			id: this.state.messages.length ? this.state.messages[this.state.messages.length-1].id+1 : 1,
-			sender: msg.sender,
-			text: msg.message,
-		});
+		if(messages.length && messages[messages.length-1].sender === msg.sender ) {
+			messages[messages.length-1].text += "\n"+msg.message;
+		} else {
+			messages.push({
+				id: this.state.messages.length ? this.state.messages[this.state.messages.length - 1].id + 1 : 1,
+				sender: msg.sender,
+				text: msg.message,
+			});
+		}
 		this.setState({ messages });
 		setTimeout(function () {
 			let messageDiv = document.getElementById('messages');
@@ -47,12 +53,7 @@ export default class ChatBar extends Component {
 			return;
 		}
 		let messages = this.state.messages;
-		// messages.push({
-		// 	id: this.state.messages[this.state.messages.length-1].id+1,
-		// 	sender: 'testUser',
-		// 	text: input,
-		// });
-		socket.emit('chat message', {msg: input, groupName: "Main Room"});
+		socket.emit('chat message', {msg: input, groupName: rooms[0]});
 		this.setState({ messages, input: ''});
 	}
 	componentDidMount() {

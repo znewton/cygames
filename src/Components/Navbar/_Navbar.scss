@@ -9,7 +9,7 @@
 	vertical-align: middle;
 	z-index: 1000;
 	@include box-shadow(3px 0 5px rgba(0,0,0,0.5));
-	div {
+	& > div {
 		position: relative;
 		width: 33%;
 		height: inherit;
@@ -118,6 +118,64 @@
 		i::before{
 			@include animation(spin 4s infinite linear)
 		}
+	}
+	button.login {
+		border: none;
+		border-left: 1px solid #fff;
+		padding-left: 0.5em;
+		margin-left: 0.5em;
+		background-color: transparent;
+		color: #fff;
+		&:hover {
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+			cursor: pointer;
+		}
+	}
+}
+
+.UserMenu {
+	position: absolute;
+	color: $cy_font_color;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	padding: 0.1em 0;
+	box-sizing: border-box;
+	@include border-radius(0 0 1em 1em);
+	transform-origin: top;
+	transform: scaleY(0);
+	@include transition(transform 125ms ease);
+	@include box-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
+	div {
+		position: relative;
+		padding: 0.8em;
+		@include border-radius(inherit);
+		&:hover {
+			cursor: pointer;
+			background-color: $cy_off_white;
+		}
+	}
+	div + div {
+		border-top: 1px solid #ddd;
+	}
+	&.open {
+		transform: scaleY(1);
+	}
+}
+.UserMenuCover {
+	position: absolute;
+	background-color: rgba(0,0,0,0.3);
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+	transform-origin: top center;
+	transform: scaleY(0);
+	@include transition(transform 125ms ease);
+	&.open {
+		pointer-events: unset;
+		transform: scaleY(1);
 	}
 }
 

@@ -5,7 +5,9 @@ export default class Message extends Component{
 		return (
 			<div className={'Message' + (this.props.isUser ? ' User':'')}>
 				<div className="sender">{this.props.message.sender}</div>
-				<div className="text">{this.props.message.text}</div>
+				<div className="text">{this.props.message.text.split('\n').map((item, key) => (
+					<span key={key}>{item}<br/></span>
+				))}</div>
 			</div>
 		);
 	}
