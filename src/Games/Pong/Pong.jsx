@@ -1,29 +1,49 @@
 import React, { Component } from 'react';
+import firebase from 'firebase';
 
 import Canvas from '../Canvas.jsx';
 
-let gameState = {
-	p1_paddle_y: 10,
-	p2_paddle_y: 20,
-	ball_x: 50,
-	ball_y: 50,
-};
+let context = null;
+const io = require('socket.io-client');
+const socket = io();
 
 export default class Pong extends Component {
 	constructor() {
 		super();
-		let size = window.innerWidth;
 		this.state = {
-			width: size,
-			height: size/2,
+			userDetails: null,
+			context: null,
 		};
 		document.title = 'Pong | cygames';
 	}
 	componentDidMount() {
+		firebase.auth().onAuthStateChanged(firebaseUser => {
+			if(firebaseUser) {
+				//user is signed in
+				this.setState({
+					userDetails:{
+						displayName: firebaseUser.displayName,
+						email: firebaseUser.email,
+						emailVerified: firebaseUser.emailVerified,
+						photoURL: firebaseUser.photoURL,
+						uid: firebaseUser.uid,
+						providerData: firebaseUser.providerData,
+					}
+				});
+				socket.emit("enterPongQueue", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
+				socket.on('game update',(data) => {
+					this.canvasUpdate(context, data);
+				});
+			} else {
+				this.setState({userDetails: null})
+			}
+		}, error => {
+			console.log(error);
+		});
 	}
-	canvasStart(ctx) {
-		let x_modifier = ctx.canvas.offsetWidth/100;
-		let y_modifier = ctx.canvas.offsetHeight/100;
+	canvasUpdate(ctx, gameState) {
+		let x_modifier = ctx.canvas.offsetWidth/gameState.res;
+		let y_modifier = ctx.canvas.offsetHeight/gameState.res;
 		// console.log(ctx);
 		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 		ctx.fillStyle = '#fff';
@@ -37,7 +57,7 @@ export default class Pong extends Component {
 		//p2_paddle
 		ctx.fillRect(
 			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
-			Math.floor(gameState.p1_paddle_y*y_modifier),
+			Math.floor(gameState.p2_paddle_y*y_modifier),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
@@ -52,7 +72,7 @@ export default class Pong extends Component {
 	render() {
 		return (
 			<div className="Pong">
-				<Canvas handleMount={(ctx) => this.canvasStart(ctx)} />
+				<Canvas handleMount={(ctx) => {context = ctx}} />
 			</div>
 		);
 	}

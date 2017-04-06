@@ -6,6 +6,7 @@ const app = express();
 const server = app.listen(port);
 const io = require('socket.io')(server);
 const firebase = require('firebase');
+const pong = require('./pong');
 
 var config = {
 	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
@@ -15,7 +16,7 @@ var config = {
 	messagingSenderId: "175107300140"
 };
 
-let users = [];
+let pongQueue = [];
 
 firebase.initializeApp(config);
 
@@ -46,15 +47,38 @@ io.on('connection', function(socket){
 
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
-		writeUserData(socket.userName, "Real Name");
-		addUserToRoom(socket.userName, "Main Room");
+		socket.uid = msg.uid;
+		socket.join("Main Room");
+		writeUserData(socket.uid, socket.userName);
+		addUserToRoom(socket.uid, "Main Room");
 		getMessagesForRoom("Main Room");
+	});
+	socket.on('enterPongQueue', function(data) {
+		socket.userName = data.userName;
+		socket.uid = data.uid;
+		if(pongQueue.length) {
+			//make match
+			let player1 = pongQueue.pop();
+			let player2 = socket;
+			let roomName = player1.uid+player2.uid;
+			player1.join(roomName);
+			player2.join(roomName);
+			addUserToRoom(player1.uid, roomName);
+			addUserToRoom(player2.uid, roomName);
+			pong.startGame(io.sockets.in(roomName));
+			console.log('Pong Match: '+player1.userName+' vs. '+player2.userName);
+		} else {
+			//add to queue
+			pongQueue.push(socket);
+			console.log(socket.userName+' added to Pong Queue');
+		}
 	});
 
 	socket.on('chat message', function(msg){
 		var messageData = {
 			message: msg.msg,
 			sender: socket.userName,
+			sid: socket.uid,
 			timestamp: 1
 		}
 		var newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
@@ -64,8 +88,8 @@ io.on('connection', function(socket){
 		updates['/messages/'+ msg.groupName + "/" + newMessageKey] = messageData;
 
 		firebase.database().ref().update(updates);
-		sendMessage(socket.userName, msg.msg);
-		broadcastMessage(socket.userName, msg.msg);
+		sendMessage(socket.uid, socket.userName, msg.msg);
+		broadcastMessage(socket.uid, socket.userName, msg.msg);
 	});
 
 	socket.on('disconnect', function(){
@@ -105,7 +129,9 @@ io.on('connection', function(socket){
 	function getMessagesForRoom(groupName) {
 		firebase.database().ref('messages/'+ groupName).once('value').then(function(snapshot){
 			snapshot.forEach(function(messageID){
-				sendMessage(messageID.val().sender, messageID.val().message);
+				if(messageID.val().sid) {
+					sendMessage(messageID.val().sid, messageID.val().sender, messageID.val().message);
+				}
 			})
 		});
 	}
@@ -125,12 +151,12 @@ io.on('connection', function(socket){
 		 firebase.database().ref().update(updates);
 	}
 
-	function sendMessage(sender, message){
-		socket.emit('chat message', {sender: sender, message: message});
+	function sendMessage(uid, sender, message){
+		socket.emit('chat message', {sid: uid, sender: sender, message: message});
 	}
 
-	function broadcastMessage(sender, message){
-		socket.broadcast.emit('chat message', {sender: sender, message: message});
+	function broadcastMessage(uid, sender, message){
+		socket.broadcast.emit('chat message', {sid: uid, sender: sender, message: message});
 	}
 });
 

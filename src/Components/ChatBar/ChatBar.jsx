@@ -5,7 +5,7 @@ import firebase from 'firebase';
 const io = require('socket.io-client');
 const socket = io();
 
-const rooms = ['Main Room', 'Pong', 'Chess'];
+const rooms = ['Main Room', 'askdkjhlkjhfs-chat', 'Chess'];
 
 export default class ChatBar extends Component {
 	constructor(props) {
@@ -29,13 +29,14 @@ export default class ChatBar extends Component {
 	}
 	handleMessageReceive(msg) {
 		let messages = this.state.messages;
-		if(messages.length && messages[messages.length-1].sender === msg.sender ) {
+		if(messages.length && messages[messages.length-1].sid === msg.sid ) {
 			messages[messages.length-1].text += "\n"+msg.message;
 		} else {
 			messages.push({
 				id: this.state.messages.length ? this.state.messages[this.state.messages.length - 1].id + 1 : 1,
 				sender: msg.sender,
 				text: msg.message,
+				sid: msg.sid,
 			});
 		}
 		this.setState({ messages });
@@ -63,6 +64,7 @@ export default class ChatBar extends Component {
 			if(firebaseUser) {
 				//user is signed in
 				this.setState({
+					messages: [],
 					userDetails:{
 						displayName: firebaseUser.displayName,
 						email: firebaseUser.email,
@@ -72,7 +74,7 @@ export default class ChatBar extends Component {
 						providerData: firebaseUser.providerData,
 					}
 				});
-				socket.emit("startSession", {userName: firebaseUser.displayName});
+				socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
 			} else {
 				this.setState({userDetails: null})
 			}
