@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
-import { ResizeSensor } from 'css-element-queries'
-import { waitForFinalEvent } from '../../Helpers/helpers.jsx';
+
+import Canvas from '../Canvas.jsx';
+
+let gameState = {
+	p1_paddle_y: 10,
+	p2_paddle_y: 20,
+	ball_x: 50,
+	ball_y: 50,
+};
 
 export default class Pong extends Component {
 	constructor() {
@@ -13,33 +20,39 @@ export default class Pong extends Component {
 		document.title = 'Pong | cygames';
 	}
 	componentDidMount() {
-		let main = document.getElementById('main');
-		let size = main.offsetWidth;
-		this.setState({width: size, height: size/2});
-		let self = this;
-		new ResizeSensor(main, () => {
-			let size = document.getElementById('main').offsetWidth;
-			self.setState({width: size, height: size/2});
-		});
-		window.addEventListener('resize', () => {
-			waitForFinalEvent(() =>{
-				let size = document.getElementById('main').offsetWidth;
-				self.setState({width: size, height: size/2});
-			}, 300, "game resize");
-		});
-		const ctx = this.refs.canvas.getContext('2d');
-		ctx.clearRect(0,0,this.state.height, this.state.width);
+	}
+	canvasStart(ctx) {
+		let x_modifier = ctx.canvas.offsetWidth/100;
+		let y_modifier = ctx.canvas.offsetHeight/100;
+		// console.log(ctx);
+		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+		ctx.fillStyle = '#fff';
+		//p1_paddle
+		ctx.fillRect(
+			5*x_modifier,
+			gameState.p1_paddle_y*y_modifier,
+			Math.floor(0.5*x_modifier),
+			15*y_modifier
+		);
+		//p2_paddle
+		ctx.fillRect(
+			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
+			Math.floor(gameState.p1_paddle_y*y_modifier),
+			Math.floor(0.5*x_modifier),
+			15*y_modifier
+		);
+		//ball
+		ctx.fillRect(
+			Math.floor(gameState.ball_x*x_modifier),
+			Math.floor(gameState.ball_y*y_modifier),
+			Math.floor(2*x_modifier),
+			Math.floor(2*x_modifier),
+		);
 	}
 	render() {
 		return (
 			<div className="Pong">
-				<canvas
-					id="pong-canvas"
-					ref="canvas"
-					width={this.state.width}
-					height={this.state.height}
-					style={{backgroundColor: '#111'}}
-				/>
+				<Canvas handleMount={(ctx) => this.canvasStart(ctx)} />
 			</div>
 		);
 	}
