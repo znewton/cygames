@@ -138,8 +138,10 @@
 	color: $cy_font_color;
 	top: 100%;
 	left: 0;
+	background-color: #fff;
 	width: 100%;
 	padding: 0.1em 0;
+	z-index: 1;
 	box-sizing: border-box;
 	@include border-radius(0 0 1em 1em);
 	transform-origin: top;
@@ -163,10 +165,10 @@
 	}
 }
 .UserMenuCover {
-	position: absolute;
+	position: fixed;
 	background-color: rgba(0,0,0,0.3);
 	left: 0;
-	top: 0;
+	top: $navbar_height;
 	width: 100vw;
 	height: 100vh;
 	z-index: -100;
