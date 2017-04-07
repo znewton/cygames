@@ -30,8 +30,9 @@ export default class Pong extends Component {
 						providerData: firebaseUser.providerData,
 					}
 				});
-				socket.emit("enterPongQueue", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
-				socket.on('game update',(data) => {
+				socket.emit("pong:enterQueue", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
+				this.canvasQueueIndicate(context);
+				socket.on('pong:update-server',(data) => {
 					this.canvasUpdate(context, data);
 				});
 			} else {
@@ -41,6 +42,13 @@ export default class Pong extends Component {
 			console.log(error);
 		});
 	}
+	canvasQueueIndicate(ctx) {
+		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+		ctx.font= '10px sans-serif #fff';
+		ctx.fillStyle = '#fff';
+		ctx.textAlign = 'center';
+		ctx.fillText('In Queue...', ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight/2)
+	}
 	canvasUpdate(ctx, gameState) {
 		let x_modifier = ctx.canvas.offsetWidth/gameState.res;
 		let y_modifier = ctx.canvas.offsetHeight/gameState.res;
@@ -49,15 +57,15 @@ export default class Pong extends Component {
 		ctx.fillStyle = '#fff';
 		//p1_paddle
 		ctx.fillRect(
-			5*x_modifier,
-			gameState.p1_paddle_y*y_modifier,
+			Math.floor(5*x_modifier),
+			Math.floor(gameState.p1_paddle_y*y_modifier-15/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
 		//p2_paddle
 		ctx.fillRect(
 			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
-			Math.floor(gameState.p2_paddle_y*y_modifier),
+			Math.floor(gameState.p2_paddle_y*y_modifier - 15/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);

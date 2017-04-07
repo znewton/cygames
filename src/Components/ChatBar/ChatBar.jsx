@@ -16,7 +16,7 @@ export default class ChatBar extends Component {
 		};
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleEnterPress = this.handleEnterPress.bind(this);
-		socket.on('chat message', (msg) => this.handleMessageReceive(msg));
+		socket.on('chat:message', (msg) => this.handleMessageReceive(msg));
 	}
 	handleInputChange(e) {
 		this.setState({input:e.target.value});
@@ -54,7 +54,7 @@ export default class ChatBar extends Component {
 			return;
 		}
 		let messages = this.state.messages;
-		socket.emit('chat message', {msg: input, groupName: rooms[0]});
+		socket.emit('chat:message', {msg: input, groupName: rooms[0]});
 		this.setState({ messages, input: ''});
 	}
 	componentDidMount() {

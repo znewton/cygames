@@ -48,12 +48,11 @@ io.on('connection', function(socket){
 	socket.on('startSession',function(msg){
 		socket.userName = msg.userName;
 		socket.uid = msg.uid;
-		socket.join("Main Room");
 		writeUserData(socket.uid, socket.userName);
-		addUserToRoom(socket.uid, "Main Room");
+		addUserToRoom(socket, "Main Room");
 		getMessagesForRoom("Main Room");
 	});
-	socket.on('enterPongQueue', function(data) {
+	socket.on('pong:enterQueue', function(data) {
 		socket.userName = data.userName;
 		socket.uid = data.uid;
 		if(pongQueue.length) {
@@ -61,11 +60,10 @@ io.on('connection', function(socket){
 			let player1 = pongQueue.pop();
 			let player2 = socket;
 			let roomName = player1.uid+player2.uid;
-			player1.join(roomName);
-			player2.join(roomName);
-			addUserToRoom(player1.uid, roomName);
-			addUserToRoom(player2.uid, roomName);
-			pong.startGame(io.sockets.in(roomName));
+			addUserToRoom(player1, roomName);
+			addUserToRoom(player2, roomName);
+			getMessagesForRoom(roomName);
+			pong.startGame(io.sockets.in(roomName), player1, player2);
 			console.log('Pong Match: '+player1.userName+' vs. '+player2.userName);
 		} else {
 			//add to queue
@@ -74,17 +72,17 @@ io.on('connection', function(socket){
 		}
 	});
 
-	socket.on('chat message', function(msg){
-		var messageData = {
+	socket.on('chat:message', function(msg){
+		let messageData = {
 			message: msg.msg,
 			sender: socket.userName,
 			sid: socket.uid,
 			timestamp: 1
-		}
-		var newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
+		};
+		let newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
 
 		// Write the new post's data simultaneously in the posts list and the user's post list.
-		var updates = {};
+		let updates = {};
 		updates['/messages/'+ msg.groupName + "/" + newMessageKey] = messageData;
 
 		firebase.database().ref().update(updates);
@@ -94,6 +92,10 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 			console.log('user disconnected');
+			if(pongQueue.indexOf(socket) !== -1) {
+				pongQueue.splice(pongQueue.indexOf(socket), 1);
+			}
+			socket.leave(socket.roomName);
 			firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 				snapshot.forEach(function(groupID){
 					firebase.database().ref('groups/'+groupID.key+'/members/'+socket.userName).remove();
@@ -116,8 +118,8 @@ io.on('connection', function(socket){
 			snapshot.forEach(function(user){
 				firebase.database().ref('users/'+user.key+'/groups/').once('value').then(function(groupID){
 					console.log(groupID.val());
-					for (var key in groupID.val()) {
-						if(key == groupName){
+					for (let key in groupID.val()) {
+						if(key === groupName){
 							firebase.database().ref('users/'+user.key+'/groups/'+key).remove();
 						}
 					}
@@ -143,20 +145,25 @@ io.on('connection', function(socket){
 	  });
 	}
 
-	function addUserToRoom(screenName, groupName){
-		var updates = {}
-		updates['/users/'+screenName+"/groups/"+groupName] = true;
-		updates['/groups/'+groupName+'/members/'+screenName] = true;
+	function addUserToRoom(sock, groupName){
+		if(sock.roomName) {
+			sock.leave(sock.roomName);
+		}
+		sock.roomName = groupName;
+		sock.join(sock.roomName);
+		let updates = {};
+		updates['/users/'+sock.userName+"/groups/"+groupName] = true;
+		updates['/groups/'+groupName+'/members/'+sock.userName] = true;
 
 		 firebase.database().ref().update(updates);
 	}
 
 	function sendMessage(uid, sender, message){
-		socket.emit('chat message', {sid: uid, sender: sender, message: message});
+		socket.emit('chat:message', {sid: uid, sender: sender, message: message});
 	}
 
 	function broadcastMessage(uid, sender, message){
-		socket.broadcast.emit('chat message', {sid: uid, sender: sender, message: message});
+		socket.broadcast.emit('chat:message', {sid: uid, sender: sender, message: message});
 	}
 });
 
