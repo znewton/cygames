@@ -91,11 +91,13 @@ module.exports = {
 		});
 		player2.on('disconnect', () => {
 			player2.leave(player2.roomName);
-			endGame(players, player1, player2, 2, gameState, roomName);
+			if(gameIntervals[player2.roomName])
+				endGame(players, player1, player2, 2, gameState, roomName);
 		});
 		player1.on('disconnect', () => {
 			player1.leave(player1.roomName);
-			endGame(players, player1, player2, 1, gameState, roomName);
+			if(gameIntervals[player1.roomName])
+				endGame(players, player1, player2, 1, gameState, roomName);
 		});
 		setTimeout(function() {
 		gameIntervals[roomName] = setInterval(() => {
