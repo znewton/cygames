@@ -74,7 +74,7 @@ export default class Pong extends Component {
 			ctx.fillText('Player '+data.quitter+' Quit!',
 										ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.3);
 		} else {
-			let pNum = this.state.userDetails.uid === gameState.p1_id ? 1 : 2;
+			let pNum = this.state.userDetails.uid === data.p1_id ? 1 : 2;
 			if(data.p1_score > data.p2_score) {
 			  ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
 				ctx.fillText('Player 1 Wins!',
