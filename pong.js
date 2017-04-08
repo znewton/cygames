@@ -2,8 +2,8 @@ let gameIntervals = {};
 const ball_move_amount_y = 1;
 const ball_move_amount_x = 2;
 const moveAmount = 2;
-let ball_dir_x = 1;
-let ball_dir_y = 1;
+const ball_width = 4;
+const paddle_height = 16;
 const frameRate = 50;
 
 function endGame(players, player1, player2, playerDC, gameState, roomName) {
@@ -19,37 +19,51 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	player1.disconnect();
 	player2.disconnect();
 }
-
+function calculateBallYDir(gameState) {
+	if(gameState.ball_y < gameState.p2_paddle_y - paddle_height/2 + paddle_height/3) {
+		if(gameState.ball_dir_y > -2) gameState.ball_dir_y--;
+	} else if (gameState.ball_y > gameState.p2_paddle_y + paddle_height/2 - paddle_height/3) {
+		if(gameState.ball_dir_y < 2) gameState.ball_dir_y++;
+	}
+	return gameState;
+}
 function ball_collision(gameState) {
-	if(gameState.ball_x >= 100-5 && gameState.ball_x < 100-2) {
-		if(gameState.ball_y > gameState.p2_paddle_y-15/2 && gameState.ball_y < gameState.p2_paddle_y+15/2) {
-			ball_dir_x = -1;
+	let ball_right = gameState.ball_x + ball_width/2;
+	let ball_left = gameState.ball_x - ball_width/2;
+	let ball_top = gameState.ball_y - ball_width/2;
+	let ball_bottom = gameState.ball_y + ball_width/2;
+	if(ball_right >= 100-5 && ball_right < 100-2) {
+		if(ball_bottom > gameState.p2_paddle_y-paddle_height/2
+			 && ball_top < gameState.p2_paddle_y+paddle_height/2) {
+			gameState.ball_dir_x = -1;
+			gameState = calculateBallYDir(gameState);
 		}
-	} else if(gameState.ball_x > 2 && gameState.ball_x <= 5) {
-		if(gameState.ball_y > gameState.p1_paddle_y-15/2 && gameState.ball_y < gameState.p1_paddle_y+15/2) {
-			ball_dir_x = 1;
+	} else if(ball_left > 2 && ball_left <= 5) {
+		if(ball_bottom > gameState.p1_paddle_y-paddle_height/2 && ball_top < gameState.p1_paddle_y+paddle_height/2) {
+			gameState.ball_dir_x = 1;
+			gameState = calculateBallYDir(gameState);
 		}
-	} else if(gameState.ball_x >= 100) {
+	} else if(ball_left >= 100) {
 		gameState.p1_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		ball_dir_y = 1;
-		ball_dir_x = -1;
-	} else if(gameState.ball_x <= 0) {
+		gameState.ball_dir_y = 1;
+		gameState.ball_dir_x = -1;
+	} else if(ball_right <= 0) {
 		gameState.p2_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		ball_dir_y = 1;
-		ball_dir_x = 1;
+		gameState.ball_dir_y = 1;
+		gameState.ball_dir_x = 1;
 	}
-	gameState.ball_x += ball_dir_x*ball_move_amount_x;
+	gameState.ball_x += gameState.ball_dir_x*ball_move_amount_x;
 
-	if(gameState.ball_y >= 100) {
-		ball_dir_y = -1;
-	} else if(gameState.ball_y <= 0) {
-		ball_dir_y = 1;
+	if(ball_bottom >= 100) {
+		gameState.ball_dir_y = -1;
+	} else if(ball_top <= 0) {
+		gameState.ball_dir_y = 1;
 	}
-	gameState.ball_y += ball_dir_y*ball_move_amount_y;
+	gameState.ball_y += gameState.ball_dir_y*ball_move_amount_y;
 	return gameState;
 }
 
@@ -65,6 +79,8 @@ module.exports = {
 			ball_x: 50,
 			ball_y: 50,
 			res: 100,
+			ball_dir_x: 1,
+			ball_dir_y: 1,
 		};
 		players.emit('pong:start', gameState);
 		player1.on('pong:update-client', (data) => {
@@ -81,6 +97,7 @@ module.exports = {
 			player1.leave(player1.roomName);
 			endGame(players, player1, player2, 1, gameState, roomName);
 		});
+		setTimeout(function() {
 		gameIntervals[roomName] = setInterval(() => {
 			if(gameState.ball_y >= 100) {
 				ball_dir_y = -1;
@@ -92,6 +109,6 @@ module.exports = {
 			if(gameState.p1_score == 10 || gameState.p2_score == 10) {
 				endGame(players, player1, player2, null, gameState, roomName);
 			}
-		},50);
+		},50)},4100);
 	}
 };

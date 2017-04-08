@@ -39,6 +39,9 @@ export default class Pong extends Component {
 				socket.on('pong:end',(data) => {
 					this.canvasGameEnd(context, data);
 				});
+				socket.on('pong:start',(data) => {
+					this.canvasGameStart(context, data);
+				});
 				socket.on('pong:enterQueue',(data) => {
 					this.canvasQueueIndicate(context);
 				});
@@ -48,6 +51,18 @@ export default class Pong extends Component {
 		}, error => {
 			console.log(error);
 		});
+	}
+	canvasGameStart(ctx, data) {
+		let timeLeft = 3;
+		let countDown = setInterval(function () {
+			ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+			ctx.font = '40px courier';
+			ctx.fillStyle = '#fff';
+			ctx.textAlign = 'center';
+			ctx.fillText('Starting in '+timeLeft, ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight/2);
+			timeLeft--;
+			if(timeLeft === 0) clearInterval(countDown);
+		}, 1000);
 	}
 	canvasGameEnd(ctx, data) {
 		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
@@ -102,7 +117,7 @@ export default class Pong extends Component {
 		//p1_paddle
 		ctx.fillRect(
 			Math.floor(5*x_modifier),
-			Math.floor(gameState.p1_paddle_y*y_modifier-15/2),
+			Math.floor(gameState.p1_paddle_y*y_modifier-16/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
@@ -110,15 +125,15 @@ export default class Pong extends Component {
 		//p2_paddle
 		ctx.fillRect(
 			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
-			Math.floor(gameState.p2_paddle_y*y_modifier - 15/2),
+			Math.floor(gameState.p2_paddle_y*y_modifier - 16/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
 		ctx.fillStyle = '#fff';
 		//ball
 		ctx.fillRect(
-			Math.floor(gameState.ball_x*x_modifier),
-			Math.floor(gameState.ball_y*y_modifier),
+			Math.floor(gameState.ball_x*x_modifier-1*x_modifier),
+			Math.floor(gameState.ball_y*y_modifier-1*y_modifier),
 			Math.floor(2*x_modifier),
 			Math.floor(2*x_modifier),
 		);
