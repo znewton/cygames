@@ -3,6 +3,7 @@ const ball_move_amount_y = 1;
 const ball_move_amount_x = 1;
 let ball_dir_x = 1;
 let ball_dir_y = 1;
+const frameRate = 50;
 
 function endGame(roomName, players) {
 	clearInterval(gameIntervals[roomName]);
@@ -56,12 +57,10 @@ module.exports = {
 		};
 		players.emit('pong:start', gameState);
 		player1.on('pong:update-client', (data) => {
-			gameState.p1_paddle_y += data.offset*moveAmount;
-			players.emit('pong:update-server', gameState);
+			gameState.p1_paddle_y += data.offset*moveAmount*frameRate/100;
 		});
 		player2.on('pong:update-client', (data) => {
-			gameState.p2_paddle_y += data.offset*moveAmount;
-			players.emit('pong:update-server', gameState);
+			gameState.p2_paddle_y += data.offset*moveAmount*frameRate/100;
 		});
 		player2.on('disconnect', () => {
 			player2.leave(player1.roomName);
@@ -79,6 +78,6 @@ module.exports = {
 			}
 			gameState = ball_collision(gameState);
 			players.emit('pong:update-server', gameState);
-		},100);
+		},50);
 	}
 };
