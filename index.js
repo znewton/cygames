@@ -63,7 +63,7 @@ io.on('connection', function(socket){
 			addUserToRoom(player1, roomName);
 			addUserToRoom(player2, roomName);
 			getMessagesForRoom(roomName);
-			pong.startGame(io.sockets.in(roomName), player1, player2);
+			pong.startGame(io.sockets.in(roomName), player1, player2, roomName);
 			console.log('Pong Match: '+player1.userName+' vs. '+player2.userName);
 		} else {
 			//add to queue
@@ -103,6 +103,18 @@ io.on('connection', function(socket){
 				firebase.database().ref('users/'+socket.userName).remove();
 			});
 	});
+	socket.on('manual-disconnect', function() {
+		if(pongQueue.indexOf(socket) !== -1) {
+			pongQueue.splice(pongQueue.indexOf(socket), 1);
+		}
+		socket.leave(socket.roomName);
+		firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
+			snapshot.forEach(function(groupID){
+				firebase.database().ref('groups/'+groupID.key+'/members/'+socket.userName).remove();
+			});
+			firebase.database().ref('users/'+socket.userName).remove();
+		});
+	})
 
 	function createRoom(groupName){
 		firebase.database().ref('groups/'+groupName).set({
