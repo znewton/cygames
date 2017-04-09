@@ -1,0 +1,42 @@
+.Index {
+  padding: 0 !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  .segment {
+    text-align: center;
+    padding: 1em 0;
+    font-size: 2em;
+    vertical-align: middle;
+    margin-bottom: 1em;
+    span {
+      width: 70%;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+    i {
+      width: 30%;
+      display: inline-block;
+      box-sizing: border-box;
+      font-size: 6em;
+      @extend %orange_gradient;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @include bp-medium {
+      & + .segment {
+        border-top: 1px solid #ddd;
+      }
+      span, i {
+        width: unset;
+        display: block;
+      }
+    }
+  }
+  .fa-play {
+
+  }
+  .fa-comment {
+
+  }
+}

@@ -5,12 +5,13 @@
   margin-top: 0.3em;
   box-sizing: border-box;
   overflow: hidden;
+  font-size: 1.2em;
   .sender {
     position: relative;
     width: 80%;
     text-overflow: ellipsis;
     box-sizing: border-box;
-    color: darken($cy_gray, 50%);
+    color: $cy_dark_gray;
     padding-left: 0.5em;
   }
   .text {
@@ -21,6 +22,7 @@
     padding: 0.5em 0.75em;
     vertical-align: middle;
     background-color: #ffffff;
+    // @extend %white_gradient;
     @include border-radius(0 1em 1em 1em);
     @extend %break-words;
   }
@@ -33,7 +35,8 @@
   text-align: right;
   .text {
     text-align: right;
-    background-color: lighten(desaturate($cy_blue, 10%), 20%);
+    background-color: $cy_light_blue;
+    // @extend %blue_gradient;
     color: #ffffff;
     @include border-radius(1em 1em 0 1em);
   }

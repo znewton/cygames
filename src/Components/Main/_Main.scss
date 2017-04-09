@@ -3,7 +3,9 @@
   z-index: 3;
   width: 100vw;
   left: 0;
-  top: $navbar_height;
+  height: 100vh;
+  top: 0;
+  padding-top: $navbar_height;
   transform-origin: left;
   section {
     position: relative;
@@ -13,7 +15,7 @@
   @include bp-large {
     z-index: 1;
     @include transition(none);
-    overflow: hidden;
+    // overflow: hidden;
   }
 }
 .Main.left-menu-open {

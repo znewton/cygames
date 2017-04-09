@@ -6,23 +6,26 @@
   top: 0;
   padding-top: $navbar_height;
   box-sizing: border-box;
-  background-color: desaturate($cy_gray, 10%);
+  background-color: $cy_light_gray;
   z-index: 1;
   @include transition(transform 125ms ease-out);
   a {
     display: block;
-    background-color: lighten(desaturate($cy_off_white, 20%), 20%);
+    background-color: $cy_white;
     padding: 0.5em 1em;
     text-decoration: none;
     font-size: 1.2em;
     color: $cy_font_color;
-    @include transition(background-color 75ms ease);
+    @include transition(all 125ms ease);
   }
   a:hover {
-    background-color: lighten(desaturate($cy_blue, 40%), 30%);
+    // background-color: $cy_light_blue;
+    color: $cy_white;
+    @extend %blue_gradient;
   }
   a.active {
-    background-color: lighten(desaturate($cy_blue, 40%), 50%);
+    // background-color: desaturate($cy_light_blue, 60%);
+    @extend %blue_gradient;
   }
   a + a{
     border-top: 1px solid $cy_off_white;

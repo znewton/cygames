@@ -4,8 +4,9 @@
 	width: 100vw;
 	height: $navbar_height;
 	box-sizing: border-box;
-	background-color: $cy_red;
-	color: lighten(desaturate($cy_off_white, 1%), 20%);
+	// background-color: $cy_red;
+	@extend %red_gradient;
+	color: $cy_white;
 	vertical-align: middle;
 	z-index: 1000;
 	@include box-shadow(3px 0 5px rgba(0,0,0,0.5));
@@ -154,7 +155,7 @@
 		@include border-radius(inherit);
 		&:hover {
 			cursor: pointer;
-			background-color: $cy_off_white;
+			background-color: #aaa;
 		}
 	}
 	div + div {

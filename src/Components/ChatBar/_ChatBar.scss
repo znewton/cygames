@@ -11,7 +11,7 @@ $input_height: 3em;
   top: 0;
   padding-top: $navbar_height;
   box-sizing: border-box;
-  background-color: desaturate($cy_gray, 10%);
+  background-color: $cy_light_gray;
   z-index: 2;
   @include transition(transform 125ms ease-out);
   #messages {
@@ -35,7 +35,7 @@ $input_height: 3em;
 
   #messages::-webkit-scrollbar-thumb
   {
-    background-color: darken($cy_gray, 30%);
+    background-color: $cy_dark_gray;
     border-radius: 3px;
   }
 
@@ -67,12 +67,14 @@ $input_height: 3em;
       display: inline-block;
       box-sizing: border-box;
       color: #ffffff;
-      background-color: lighten(desaturate($cy_blue, 10%), 20%);
+      background-color: $cy_light_blue;
+
       border: none;
       outline: none;
+      @include transition(color 125ms ease);
     }
     button:hover {
-      background-color: desaturate($cy_blue, 10%);
+      background-color: $cy_blue;
       cursor: pointer;
     }
   }
