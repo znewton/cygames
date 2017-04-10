@@ -8,11 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	var d1;
   var d2;
 	var food;
-	var score1;
-	var score2;
-
-	var p1_snake_array;
-	var p2_snake_array;
+  var gameState = {};
 
 	function init()
 	{
@@ -30,13 +26,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function create_snakes()
 	{
-		var length1 = 5;
-		p1_snake_array = [];
-		p2_snake_array = [];
+		var length = 5;
+    gameState = {
+      p1_snake_array: [],
+      p2_snake_array: [],
+      p1_score: 0,
+      p2_score: 0,
+      p1_dir: 'right',
+      p2_dir: 'left'
+    };
 		for(var i = length-1; i>=0; i--)
 		{
-			p1_snake_array.push({x: i, y:0});
-			p1_snake_array.push({x: w/cw - i, y:h/cw-1});
+			gameState.p1_snake_array.push({x: i, y:0});
+			gameState.p2_snake_array.push({x: w/cw - i, y:h/cw-1});
 		}
 	}
 
@@ -48,9 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		};
 	}
 
-  function move_snake(snake, dir, score) {
-		var nx = pl_snake_array[0].x;
-		var ny = pl_snake_array[0].y;
+  function move_snake(gameState, player) {
+    var snake = gameState[player+'_snake_array'];
+    var dir = gameState[player+'_dir']
+    var score = gameState[player+'_score'];
+
+		var nx = snake[0].x;
+		var ny = snake[0].y;
     if(dir == "right") nx++;
     else if(dir == "left") nx--;
     else if(dir == "up") ny--;
@@ -62,20 +68,34 @@ document.addEventListener('DOMContentLoaded', function() {
     if(ny == -1) ny = h/cw-1;
     else if (ny == h/cw) ny = 0;
 
+		if(check_collision(nx, ny, snake))
+		{
+      endGame('Player '+player);
+			init();
+			return;
+		}
+
 		if(nx == food.x && ny == food.y) {
 			var tail = {x: nx, y: ny};
 			score++;
 			create_food();
-  		p1_snake_array.unshift(tail);
+      snake.unshift(tail);
 		}
 
-		var tail = p1_snake_array.pop();
+		var tail = snake.pop();
 		tail.x = nx; tail.y = ny;
+		snake.unshift(tail);
+
+		for(var i = 0; i < snake.length; i++)
+		{
+			var c = snake[i];
+			paint_cell(c.x, c.y);
+		}
 
 
-		p1_snake_array.unshift(tail);
-
-    return snake;
+    gameState[player+'_snake_array'] = snake;
+    gameState[player+'_score'] = score;
+    return gameState;
   }
 
 	function paint()
@@ -84,27 +104,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		ctx.strokeStyle = "black";
 		ctx.strokeRect(0, 0, w, h);
 
+    gameState = move_snake(gameState, 'p1');
+    gameState = move_snake(gameState, 'p2');
 
-
-		if(check_collision(nx, ny, p1_snake_array))
-		{
-      endGame();
-			init();
-			return;
-		}
-
-
-		for(var i = 0; i < p1_snake_array.length; i++)
-		{
-			var c = p1_snake_array[i];
-			paint_cell(c.x, c.y);
-		}
     ctx.fillStyle = '#fff';
 		paint_cell(food.x, food.y);
-		var score_text = "Score: " + score;
+		var score1_text = "P1 Score: " + gameState.p1_score;
+		var score2_text = "P2 Score: " + gameState.p2_score;
     ctx.fillStyle = "#888"
     ctx.font = "20px sans-serif"
-		ctx.fillText(score_text, 5, h-5);
+		ctx.fillText(score1_text, 5, h-5);
+		ctx.fillText(score2_text, w-130, h-5);
 	}
 
   function endGame(winner) {
@@ -125,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function check_collision(x, y, array)
 	{
-		for(var i = 0; i < array1.length; i++)
+		for(var i = 0; i < array.length; i++)
 		{
 			if(array[i].x == x && array[i].y == y)
 			 return true;
@@ -135,15 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	window.addEventListener('keydown', function(e){
 		var key = e.which || e.keyCode;
-		if(key == "37" && d1 != "right") d1 = "left";
-		else if(key == "38" && d1 != "down") d1 = "up";
-		else if(key == "39" && d1 != "left") d1 = "right";
-		else if(key == "40" && d1 != "up") d1 = "down";
+		if(key == "37" && gameState.p1_dir != "right") gameState.p1_dir = "left";
+		else if(key == "38" && gameState.p1_dir != "down") gameState.p1_dir = "up";
+		else if(key == "39" && gameState.p1_dir != "left") gameState.p1_dir = "right";
+		else if(key == "40" && gameState.p1_dir != "up") gameState.p1_dir = "down";
 
-		if(key == "37" && d2 != "right") d2 = "left";
-		else if(key == "38" && d2 != "down") d2 = "up";
-		else if(key == "39" && d2 != "left") d2 = "right";
-		else if(key == "40" && d2 != "up") d2 = "down";
+		if(key == "37" && gameState.p2_dir != "right") gameState.p2_dir = "left";
+		else if(key == "38" && gameState.p2_dir != "down") gameState.p2_dir = "up";
+		else if(key == "39" && gameState.p2_dir != "left") gameState.p2_dir = "right";
+		else if(key == "40" && gameState.p2_dir != "up") gameState.p2_dir = "down";
 	})
 
 });
