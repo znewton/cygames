@@ -4,7 +4,7 @@
   "description": "A base react app",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --optimize-minimize --progress -p; node index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack -d --watch",
     "build": "webpack --optimize-minimize --progress -p",
