@@ -16,8 +16,8 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 		p1_id: gameState.p1_id,
 		p2_id: gameState.p2_id,
 	});
-	player1.disconnect();
-	player2.disconnect();
+	// player1.disconnect();
+	// player2.disconnect();
 }
 function calculateBallYDir(gameState) {
 	if(gameState.ball_y < (gameState.p2_paddle_y - paddle_height/2 + paddle_height/3)) {
