@@ -1,7 +1,7 @@
 .idea
 node_modules
 
-public/bundle.min.js
-public/bundle.min.css
+#public/bundle.min.js
+#public/bundle.min.css
 
 npm-debug.log
