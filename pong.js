@@ -4,7 +4,7 @@ const ball_move_amount_x = 2;
 const moveAmount = 2;
 const ball_width = 4;
 const paddle_height = 16;
-const frameRate = 50;
+const frameRate = 35;
 
 function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	clearInterval(gameIntervals[roomName]);
@@ -111,6 +111,6 @@ module.exports = {
 			if(gameState.p1_score == 10 || gameState.p2_score == 10) {
 				endGame(players, player1, player2, null, gameState, roomName);
 			}
-		},50)},4100);
+		},frameRate)},4100);
 	}
 };
