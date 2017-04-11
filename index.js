@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const opn = require('opn');
 const port = process.env.PORT || 3000;
 const app = express();
 const server = app.listen(port);
@@ -178,7 +177,3 @@ io.on('connection', function(socket){
 		socket.broadcast.emit('chat:message', {sid: uid, sender: sender, message: message});
 	}
 });
-
-//opn('http://localhost:'+port);
-
-// opn('http://localhost:'+port+"/testing");
