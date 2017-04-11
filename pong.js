@@ -1,6 +1,6 @@
 let gameIntervals = {};
 const ball_move_amount_y = 1;
-const ball_move_amount_x = 2;
+const ball_move_amount_x = 1;
 const moveAmount = 2;
 const ball_width = 4;
 const paddle_height = 16;
@@ -20,9 +20,9 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	player2.disconnect();
 }
 function calculateBallYDir(gameState) {
-	if(gameState.ball_y < gameState.p2_paddle_y - paddle_height/2 + paddle_height/3) {
+	if(gameState.ball_y < (gameState.p2_paddle_y - paddle_height/2 + paddle_height/3)) {
 		if(gameState.ball_dir_y > -2) gameState.ball_dir_y--;
-	} else if (gameState.ball_y > gameState.p2_paddle_y + paddle_height/2 - paddle_height/3) {
+	} else if (gameState.ball_y > (gameState.p2_paddle_y + paddle_height/2 - paddle_height/3)) {
 		if(gameState.ball_dir_y < 2) gameState.ball_dir_y++;
 	}
 	return gameState;

@@ -117,7 +117,7 @@ export default class Pong extends Component {
 		//p1_paddle
 		ctx.fillRect(
 			Math.floor(5*x_modifier),
-			Math.floor(gameState.p1_paddle_y*y_modifier-16/2),
+			Math.floor(gameState.p1_paddle_y*y_modifier-(16*y_modifier)/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
@@ -125,7 +125,7 @@ export default class Pong extends Component {
 		//p2_paddle
 		ctx.fillRect(
 			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
-			Math.floor(gameState.p2_paddle_y*y_modifier - 16/2),
+			Math.floor(gameState.p2_paddle_y*y_modifier - (16*y_modifier)/2),
 			Math.floor(0.5*x_modifier),
 			15*y_modifier
 		);
