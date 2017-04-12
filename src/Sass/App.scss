@@ -11,3 +11,9 @@
 //Game Styles
 @import "../Games/NotFound/NotFound";
 @import "../Games/Index/Index";
+
+.game-description {
+  @include bp-medium {
+    display: none;
+  }
+}
