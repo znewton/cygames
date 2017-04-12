@@ -1,10 +1,10 @@
 let gameIntervals = {};
 const ball_move_amount_y = 1;
-const ball_move_amount_x = 2;
+const ball_move_amount_x = 1;
 const moveAmount = 2;
 const ball_width = 4;
 const paddle_height = 16;
-const frameRate = 50;
+const frameRate = 35;
 
 function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	clearInterval(gameIntervals[roomName]);
@@ -16,13 +16,13 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 		p1_id: gameState.p1_id,
 		p2_id: gameState.p2_id,
 	});
-	player1.disconnect();
-	player2.disconnect();
+	// player1.disconnect();
+	// player2.disconnect();
 }
 function calculateBallYDir(gameState) {
-	if(gameState.ball_y < gameState.p2_paddle_y - paddle_height/2 + paddle_height/3) {
+	if(gameState.ball_y < (gameState.p2_paddle_y - paddle_height/2 + paddle_height/3)) {
 		if(gameState.ball_dir_y > -2) gameState.ball_dir_y--;
-	} else if (gameState.ball_y > gameState.p2_paddle_y + paddle_height/2 - paddle_height/3) {
+	} else if (gameState.ball_y > (gameState.p2_paddle_y + paddle_height/2 - paddle_height/3)) {
 		if(gameState.ball_dir_y < 2) gameState.ball_dir_y++;
 	}
 	return gameState;
@@ -47,13 +47,13 @@ function ball_collision(gameState) {
 		gameState.p1_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		gameState.ball_dir_y = 1;
+		gameState.ball_dir_y = 0;
 		gameState.ball_dir_x = -1;
 	} else if(ball_right <= 0) {
 		gameState.p2_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		gameState.ball_dir_y = 1;
+		gameState.ball_dir_y = 0;
 		gameState.ball_dir_x = 1;
 	}
 	gameState.ball_x += gameState.ball_dir_x*ball_move_amount_x;
@@ -80,7 +80,7 @@ module.exports = {
 			ball_y: 50,
 			res: 100,
 			ball_dir_x: 1,
-			ball_dir_y: 1,
+			ball_dir_y: 0,
 		};
 		players.emit('pong:start', gameState);
 		player1.on('pong:update-client', (data) => {
@@ -111,6 +111,6 @@ module.exports = {
 			if(gameState.p1_score == 10 || gameState.p2_score == 10) {
 				endGame(players, player1, player2, null, gameState, roomName);
 			}
-		},50)},4100);
+		},frameRate)},4100);
 	}
 };
