@@ -13,6 +13,8 @@ export default class Pong extends Component {
 		this.state = {
 			userDetails: null,
 			showButton: false,
+			queue: false,
+			starting: false,
 		};
 		document.title = 'Pong | cygames';
 	}
@@ -32,7 +34,7 @@ export default class Pong extends Component {
 					showButton: false,
 				});
 				socket.emit("pong:enterQueue", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
-				this.canvasQueueIndicate(context);
+				this.setState({queue: true});
 				socket.on('pong:update-server',(data) => {
 					this.canvasUpdate(context, data);
 				});
@@ -43,26 +45,20 @@ export default class Pong extends Component {
 					this.canvasGameStart(context, data);
 				});
 				socket.on('pong:enterQueue',(data) => {
-					this.canvasQueueIndicate(context);
+					this.setState({queue: true});
 				});
 			} else {
-				this.setState({userDetails: null})
+				this.setState({userDetails: null, queue: false, starting: false,})
 			}
 		}, error => {
 			console.log(error);
 		});
 	}
 	canvasGameStart(ctx, data) {
-		let timeLeft = 3;
-		let countDown = setInterval(function () {
-			ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
-			ctx.font = '40px courier';
-			ctx.fillStyle = '#fff';
-			ctx.textAlign = 'center';
-			ctx.fillText('Starting in '+timeLeft, ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight/2);
-			timeLeft--;
-			if(timeLeft === 0) clearInterval(countDown);
-		}, 1000);
+		this.setState({queue:false,starting:true})
+		setTimeout(()=> {
+			this.setState({starting: false});
+		});
 	}
 	canvasGameEnd(ctx, data) {
 		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
@@ -93,13 +89,6 @@ export default class Pong extends Component {
 		ctx.fillText(data.p1_score+' to '+data.p2_score,
 									ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.7);
 		this.setState({showButton: true});
-	}
-	canvasQueueIndicate(ctx) {
-		ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
-		ctx.font = '40px courier';
-		ctx.fillStyle = '#fff';
-		ctx.textAlign = 'center';
-		ctx.fillText('In Queue...', ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight/2);
 	}
 	canvasUpdate(ctx, gameState) {
 		let x_modifier = ctx.canvas.offsetWidth/gameState.res;
@@ -139,28 +128,32 @@ export default class Pong extends Component {
 		);
 
 	}
+	handleMount(ctx) {
+		context = ctx;
+		window.addEventListener('keydown', function(e) {
+			let code = e.which || e.keyCode;
+			let offset = 0;
+			if(code === 38) { //up
+				e.preventDefault();
+				offset = -1;
+			} else if(code === 40) { //down
+				e.preventDefault();
+				offset = 1;
+			}
+			if (offset == 0) return;
+			socket.emit('pong:update-client', {offset: offset});
+		})
+	}
 	componentWillUnmount() {
 		socket.disconnect();
 	}
 	render() {
 		return (
 			<div className="Pong">
-				<Canvas handleMount={(ctx) => {
-					context = ctx;
-					window.addEventListener('keydown', function(e) {
-						let code = e.which || e.keyCode;
-						let offset = 0;
-						if(code === 38) { //up
-							e.preventDefault();
-							offset = -1;
-						} else if(code === 40) { //down
-							e.preventDefault();
-							offset = 1;
-						}
-						if (offset == 0) return;
-						socket.emit('pong:update-client', {offset: offset});
-					})
-				}} />
+				<Canvas handleMount={(ctx) => this.handleMount(ctx)}
+					starting={this.state.starting}
+					queue={this.state.queue}
+				/>
 				{this.state.showButton &&
 				<p style={{textAlign: 'center', fontSize: '2em'}}>
 					Refresh <i className="fa fa-refresh" /> to re-enter Queue

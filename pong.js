@@ -47,13 +47,13 @@ function ball_collision(gameState) {
 		gameState.p1_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		gameState.ball_dir_y = 1;
+		gameState.ball_dir_y = 0;
 		gameState.ball_dir_x = -1;
 	} else if(ball_right <= 0) {
 		gameState.p2_score++;
 		gameState.ball_x = 50;
 		gameState.ball_y = 50;
-		gameState.ball_dir_y = 1;
+		gameState.ball_dir_y = 0;
 		gameState.ball_dir_x = 1;
 	}
 	gameState.ball_x += gameState.ball_dir_x*ball_move_amount_x;
@@ -80,7 +80,7 @@ module.exports = {
 			ball_y: 50,
 			res: 100,
 			ball_dir_x: 1,
-			ball_dir_y: 1,
+			ball_dir_y: 0,
 		};
 		players.emit('pong:start', gameState);
 		player1.on('pong:update-client', (data) => {
