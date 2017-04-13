@@ -11,6 +11,12 @@ import Main from './Components/Main/Main.jsx';
 //View Imports
 import Index from './Games/Index/Index.jsx';
 import NotFound from './Games/NotFound/NotFound.jsx';
+import Pong from './Games/Pong/Pong.jsx';
+import Snake from './Games/Snake/Snake.jsx';
+import Chess from './Games/Chess/Chess.jsx';
+
+const io = require('socket.io-client');
+const socket = io();
 
 export default class App extends Component {
 	constructor() {
@@ -46,6 +52,9 @@ export default class App extends Component {
 							providerData: firebaseUser.providerData,
 						}
 					});
+					socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
+					this.handleGameMenuToggle();
+					this.handleChatBarToggle();
 				});
 			} else {
 				this.setState({
@@ -62,15 +71,6 @@ export default class App extends Component {
 			.then(result => {
 				let token = result.credential.accessToken;
 				let googleUser = result.user;
-				// let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
-				// 	unsubscribe();
-				// 	if (!this.isUserEqual(googleUser, firebaseUser)) {
-				// 		let credential = firebase.auth.GoogleAuthProvider.credential(token);
-				// 		firebase.auth().signInWithCredential(credential).catch(error => {console.log(error)});
-				// 	} else {
-				// 		console.log('User already signed-in Firebase');
-				// 	}
-				// }, error => {console.log(error)});
 			})
 			.catch(error => {console.log(error)});
 
@@ -91,7 +91,7 @@ export default class App extends Component {
 	handleLogout() {
 		firebase.auth().signOut().then(function() {
 			// Sign-out successful.
-			this.setState({userDetails: null, userMenuOpen: false});
+			this.setState({userDetails: null, userMenuOpen: false, chatBarOpen: false, gameMenuOpen: false});
 		}).catch(function(error) {
 			// An error happened.
 		});
@@ -110,6 +110,9 @@ export default class App extends Component {
 		this.setState({gameMenuOpen: false})
 	}
 	render() {
+		const PongWrapper = (<div className="PongWrapper"><Pong socket={socket} /></div>);
+		const SnakeWrapper = (<div className="SnakeWrapper"><Snake socket={socket} /></div>);
+		const Chessrapper = (<div className="ChessWrapper"><Chess socket={socket} /></div>);
 		return (
 			<div className="App">
 				<Navbar
@@ -132,14 +135,23 @@ export default class App extends Component {
 					gameMenuOpen={this.state.gameMenuOpen}
 					chatBarOpen={this.state.chatBarOpen}
 				>
+				{this.state.userDetails != null ?
 					<Switch>
 						<Route exact path="/" component={Index}/>
-						{this.props.routes.map((route) => <Route path={'/'+route.path} component={route.component} key={route.path} />)}
+						<Route path={'/pong'} component={PongWrapper} />
+						<Route path={'/snake'} component={SnakeWrapper} />
+						<Route path={'/chess'} component={ChessWrapper} />
+						<Route component={NotFound} />
+					</Switch> :
+					<Switch>
+						<Route exact path="/" component={Index}/>
 						<Route component={NotFound} />
 					</Switch>
+				}
 				</Main>
 				<ChatBar
 					open={this.state.chatBarOpen}
+					socket={socket}
 				/>
 			</div>
 		);

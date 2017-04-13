@@ -5,8 +5,6 @@ import firebase from 'firebase';
 const io = require('socket.io-client');
 const socket = io();
 
-const rooms = ['Main Room', 'askdkjhlkjhfs-chat', 'Chess'];
-
 export default class ChatBar extends Component {
 	constructor(props) {
 		super(props);
@@ -16,7 +14,6 @@ export default class ChatBar extends Component {
 		};
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleEnterPress = this.handleEnterPress.bind(this);
-		socket.on('chat:message', (msg) => this.handleMessageReceive(msg));
 	}
 	handleInputChange(e) {
 		this.setState({input:e.target.value});
@@ -60,27 +57,8 @@ export default class ChatBar extends Component {
 	componentDidMount() {
 		let messageDiv = document.getElementById('messages');
 		messageDiv.scrollTop = messageDiv.scrollHeight;
-		firebase.auth().onAuthStateChanged(firebaseUser => {
-			if(firebaseUser) {
-				//user is signed in
-				this.setState({
-					messages: [],
-					userDetails:{
-						displayName: firebaseUser.displayName,
-						email: firebaseUser.email,
-						emailVerified: firebaseUser.emailVerified,
-						photoURL: firebaseUser.photoURL,
-						uid: firebaseUser.uid,
-						providerData: firebaseUser.providerData,
-					}
-				});
-				socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
-			} else {
-				this.setState({userDetails: null})
-			}
-		}, error => {
-			console.log(error);
-		});
+		this.props.socket.on('chat:message', (msg) => this.handleMessageReceive(msg));
+		this.props.socket.on('chat:reset', () => this.setState({messages: []}));
 	}
 	render() {
 		return (
@@ -109,7 +87,8 @@ export default class ChatBar extends Component {
 
 ChatBar.propTypes = {
 	open: React.PropTypes.bool,
-	user: React.PropTypes.object
+	user: React.PropTypes.object,
+	socket: React.PropTypes.object,
 };
 
 ChatBar.defaultProps = {
