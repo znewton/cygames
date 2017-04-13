@@ -6,16 +6,10 @@ import { BrowserRouter } from 'react-router-dom';
 import firebase from 'firebase';
 //Component imports
 import App from './App.jsx';
-//Games imports
-import Pong from './Games/Pong/Pong.jsx';
-import Snake from './Games/Snake/Snake.jsx';
-import Chess from './Games/Chess/Chess.jsx';
 
-const routes = [
-	{path: 'pong', component: Pong, label: 'Pong'},
-	{path: 'snake', component: Snake, label: 'Snake'},
-	{path: 'chess', component: Chess, label: 'Chess'},
-];
+const io = require('socket.io-client');
+const socket = io();
+
 const config = {
 	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
 	authDomain: "cygames-c3548.firebaseapp.com",
@@ -26,12 +20,63 @@ const config = {
 
 firebase.initializeApp(config);
 let provider = new firebase.auth.GoogleAuthProvider();
+let userDetails = null;
+
+function handleLogin() {
+	if (firebase.auth().currentUser) return;
+	firebase.auth().signInWithPopup(provider)
+		.then(result => {
+			let token = result.credential.accessToken;
+			let googleUser = result.user;
+		})
+		.catch(error => {console.log(error)});
+}
+function handleLogout() {
+	firebase.auth().signOut().then(function() {
+		// Sign-out successful.
+		userDetails = null;
+	}).catch(function(error) {
+		// An error happened.
+	});
+}
+firebase.auth().onAuthStateChanged(firebaseUser => {
+	if(firebaseUser) {
+		//user is signed in
+		firebaseUser.getToken().then(accessToken => {
+			userDetails = {
+				displayName: firebaseUser.displayName,
+				email: firebaseUser.email,
+				emailVerified: firebaseUser.emailVerified,
+				photoURL: firebaseUser.photoURL,
+				uid: firebaseUser.uid,
+				accessToken: accessToken,
+				providerData: firebaseUser.providerData,
+			};
+			socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
+			render((
+				<BrowserRouter>
+					<App socket={socket} user={userDetails} />
+				</BrowserRouter>
+			), document.getElementById('root'));
+		});
+	} else {
+	render((
+		<BrowserRouter>
+			<App socket={socket} user={null} />
+		</BrowserRouter>
+	), document.getElementById('root'));
+	}
+}, error => {
+	console.log(error);
+})
 
 render((
 	<BrowserRouter>
-		<App routes={routes} provider={provider}/>
+		<App socket={socket} user={null} />
 	</BrowserRouter>
 ), document.getElementById('root'));
+
+
 
 // main visibility API function
 // use visibility API to check if current tab is active or not

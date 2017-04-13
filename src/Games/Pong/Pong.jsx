@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import firebase from 'firebase';
 
 import Canvas from '../Canvas.jsx';
 
 let context = null;
-const io = require('socket.io-client');
-const socket = io();
 
 export default class Pong extends Component {
 	constructor() {
@@ -21,40 +18,20 @@ export default class Pong extends Component {
 		document.title = 'Pong | cygames';
 	}
 	componentDidMount() {
-		firebase.auth().onAuthStateChanged(firebaseUser => {
-			if(firebaseUser) {
-				//user is signed in
-				this.setState({
-					userDetails:{
-						displayName: firebaseUser.displayName,
-						email: firebaseUser.email,
-						emailVerified: firebaseUser.emailVerified,
-						photoURL: firebaseUser.photoURL,
-						uid: firebaseUser.uid,
-						providerData: firebaseUser.providerData,
-					},
-					showButton: false,
-				});
-				//Handle socket events
-				socket.emit("pong:enterQueue", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
-				this.setState({queue: true}); // Set Queue state
-				socket.on('pong:update-server',(data) => {
-					this.canvasUpdate(context, data); // Update the canvas when game is actually being played
-				});
-				socket.on('pong:end',(data) => {
-					this.canvasGameEnd(context, data); // Show end game details
-				});
-				socket.on('pong:start',(data) => {
-					this.canvasGameStart(context, data); // Set Game start. Could potentially be altered to have opponent info
-				});
-				socket.on('pong:enterQueue',(data) => {
-					this.setState({queue: true}); // Set Queue state
-				});
-			} else {
-				this.setState({userDetails: null, queue: false, starting: false,}); // Fail to auth
-			}
-		}, error => {
-			console.log(error);
+		//Handle socket events
+		this.props.socket.emit("pong:enterQueue");
+		this.setState({queue: true}); // Set Queue state
+		this.props.socket.on('pong:update-server',(data) => {
+			this.canvasUpdate(context, data); // Update the canvas when game is actually being played
+		});
+		this.props.socket.on('pong:end',(data) => {
+			this.canvasGameEnd(context, data); // Show end game details
+		});
+		this.props.socket.on('pong:start',(data) => {
+			this.canvasGameStart(context, data); // Set Game start. Could potentially be altered to have opponent info
+		});
+		this.props.socket.on('pong:enterQueue',(data) => {
+			this.setState({queue: true}); // Set Queue state
 		});
 	}
 	canvasGameStart(ctx, data) {
@@ -73,7 +50,7 @@ export default class Pong extends Component {
 			ctx.fillText('Player '+data.quitter+' Quit!',
 										ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.3);
 		} else { // Display which player won or tie
-			let pNum = this.state.userDetails.uid === data.p1_id ? 1 : 2;
+			let pNum = this.props.user.uid === data.p1_id ? 1 : 2;
 			if(data.p1_score > data.p2_score) {
 			  ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
 				ctx.fillText('Player 1 Wins!',
@@ -107,7 +84,7 @@ export default class Pong extends Component {
 		ctx.textAlign = 'center';
 		ctx.fillText(gameState.p1_score+'  |  '+gameState.p2_score,
 								ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.1);
-		let pNum = this.state.userDetails.uid === gameState.p1_id ? 1 : 2;
+		let pNum = this.props.user.uid === gameState.p1_id ? 1 : 2;
 		// p1_paddle ( left )
 		ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
 		ctx.fillRect(
@@ -138,7 +115,7 @@ export default class Pong extends Component {
 		// Set the component context to draw on for game updates
 		context = ctx;
 		// Set the game controls, Should probably change to be on the canvas, not window
-		window.addEventListener('keydown', function(e) {
+		window.addEventListener('keydown', (e) => {
 			let code = e.which || e.keyCode;
 			let offset = 0;
 			if(code === 38) { //up
@@ -150,12 +127,12 @@ export default class Pong extends Component {
 			}
 			// Send update only if valid movement
 			if (offset == 0) return;
-			socket.emit('pong:update-client', {offset: offset});
+			this.props.socket.emit('pong:update-client', {offset: offset});
 		})
 	}
 	componentWillUnmount() {
 		// Disconnect socket if user exits window or goes to different page.
-		socket.disconnect();
+		this.props.socket.emit('unmount');
 	}
 	render() {
 		return (

@@ -49,16 +49,14 @@ io.on('connection', function(socket){
 	console.log("User connected");
 	socket.emit('recieveConfig',{data: config});
 
-	socket.on('startSession',function(msg){
-		socket.userName = msg.userName;
-		socket.uid = msg.uid;
+	socket.on('startSession',function(data){
+		socket.userName = data.userName;
+		socket.uid = data.uid;
 		writeUserData(socket.uid, socket.userName);
 		addUserToRoom(socket, "Main Room");
 		getMessagesForRoom("Main Room");
 	});
 	socket.on('pong:enterQueue', function(data) {
-		socket.userName = data.userName;
-		socket.uid = data.uid;
 		if(pongQueue.length) {
 			//make match
 			let player1 = pongQueue.pop();
@@ -66,6 +64,7 @@ io.on('connection', function(socket){
 			let roomName = player1.uid+player2.uid;
 			addUserToRoom(player1, roomName);
 			addUserToRoom(player2, roomName);
+			io.sockets.in(roomName).emit('chat:reset');
 			getMessagesForRoom(roomName);
 			pong.startGame(io.sockets.in(roomName), player1, player2, roomName);
 			console.log('Pong Match: '+player1.userName+' vs. '+player2.userName);
@@ -76,8 +75,6 @@ io.on('connection', function(socket){
 		}
 	});
 	socket.on('snake:enterQueue', function(data) {
-		socket.userName = data.userName;
-		socket.uid = data.uid;
 		if(snakeQueue.length) {
 			//make match
 			let player1 = snakeQueue.pop();
@@ -85,6 +82,7 @@ io.on('connection', function(socket){
 			let roomName = player1.uid+player2.uid;
 			addUserToRoom(player1, roomName);
 			addUserToRoom(player2, roomName);
+			io.sockets.in(roomName).emit('chat:reset');
 			getMessagesForRoom(roomName);
 			snake.startGame(io.sockets.in(roomName), player1, player2, roomName);
 			console.log('Snake Match: '+player1.userName+' vs. '+player2.userName);
@@ -102,12 +100,12 @@ io.on('connection', function(socket){
 			sid: socket.uid,
 			timestamp: 1
 		};
-		let newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
+		let newMessageKey = firebase.database().ref().child('messages/' + socket.roomName).push().key;
 
 		// Write the new post's data simultaneously in the posts list and the user's post list.
 		let updates = {};
-		updates['/messages/'+ msg.groupName + "/" + newMessageKey] = messageData;
-
+		updates['/messages/'+ socket.roomName + "/" + newMessageKey] = messageData;
+		// console.log(socket.userName+' sent message to '+socket.roomName);
 		firebase.database().ref().update(updates);
 		sendMessage(socket.uid, socket.userName, msg.msg);
 		broadcastMessage(socket.uid, socket.userName, msg.msg);
@@ -126,11 +124,18 @@ io.on('connection', function(socket){
 				firebase.database().ref('users/'+socket.userName).remove();
 			});
 	});
-	socket.on('manual-disconnect', function() {
+	socket.on('unmount', function() {
 		if(pongQueue.indexOf(socket) !== -1) {
 			pongQueue.splice(pongQueue.indexOf(socket), 1);
 		}
+		if(snakeQueue.indexOf(socket) !== -1) {
+			snakeQueue.splice(snakeQueue.indexOf(socket), 1);
+		}
 		socket.leave(socket.roomName);
+		socket.roomName = 'Main Room';
+		socket.emit('chat:reset');
+		socket.join('Main Room');
+		getMessagesForRoom(socket.roomName);
 		firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 			snapshot.forEach(function(groupID){
 				firebase.database().ref('groups/'+groupID.key+'/members/'+socket.userName).remove();
@@ -187,10 +192,10 @@ io.on('connection', function(socket){
 		sock.roomName = groupName;
 		sock.join(sock.roomName);
 		let updates = {};
-		updates['/users/'+sock.userName+"/groups/"+groupName] = true;
-		updates['/groups/'+groupName+'/members/'+sock.userName] = true;
+		updates['/users/'+sock.userName+"/groups/"+sock.roomName] = true;
+		updates['/groups/'+sock.roomName+'/members/'+sock.userName] = true;
 
-		 firebase.database().ref().update(updates);
+		firebase.database().ref().update(updates);
 	}
 
 	function sendMessage(uid, sender, message){

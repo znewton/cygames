@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import Message from './Message/Message.jsx';
 import firebase from 'firebase';
 
-const io = require('socket.io-client');
-const socket = io();
-
 export default class ChatBar extends Component {
 	constructor(props) {
 		super(props);
@@ -43,7 +40,7 @@ export default class ChatBar extends Component {
 		}, 1);
 	}
 	handleMessageSend() {
-		if(this.state.userDetails === null) return;
+		if(this.props.user === null) return;
 		let input = this.state.input;
 		input = input.trim();
 		if(input === '') {
@@ -51,7 +48,7 @@ export default class ChatBar extends Component {
 			return;
 		}
 		let messages = this.state.messages;
-		socket.emit('chat:message', {msg: input, groupName: rooms[0]});
+		this.props.socket.emit('chat:message', {msg: input});
 		this.setState({ messages, input: ''});
 	}
 	componentDidMount() {
@@ -77,7 +74,7 @@ export default class ChatBar extends Component {
 										onChange={this.handleInputChange}
 										onKeyPress={this.handleEnterPress}
 										placeholder="Enter message..."
-										disabled={!this.state.userDetails} />
+										disabled={!this.props.user} />
 					<button onClick={() => this.handleMessageSend()}><i className="fa fa-send" /></button>
 				</div>
 			</div>
