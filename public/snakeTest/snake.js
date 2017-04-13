@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var d2;
 	var food;
   var gameState = {};
+  var framerate = 60;
 
 	function init()
 	{
@@ -33,7 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
       p1_score: 0,
       p2_score: 0,
       p1_dir: 'right',
-      p2_dir: 'left'
+      p2_dir: 'left',
+      p1_key_sleep: false,
+      p2_key_sleep: false,
     };
 		for(var i = length-1; i>=0; i--)
 		{
@@ -68,11 +71,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if(ny == -1) ny = h/cw-1;
     else if (ny == h/cw) ny = 0;
 
-		if(check_collision(nx, ny, snake))
+    var opponentSnake = gameState[(player == 'p1' ? 'p2' : 'p1')+'_snake_array'];
+    var opponentScore = gameState[(player == 'p1' ? 'p2' : 'p1')+'_score'];
+		if(check_collision(nx, ny, snake) || check_collision(nx, ny, opponentSnake))
 		{
-      endGame('Player '+player);
-			init();
-			return;
+      score = Math.floor(score/(opponentScore || opponentScore+1));
+      gameState[player+'_score'] = score;
+      endGame('Player '+(gameState.p1_score > gameState.p2_score ? '1' : '2'));
+			return null;
 		}
 
 		if(nx == food.x && ny == food.y) {
@@ -86,10 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		tail.x = nx; tail.y = ny;
 		snake.unshift(tail);
 
+    var color = player == 'p1' ? '#1da1f2' : '#c82345' ;
 		for(var i = 0; i < snake.length; i++)
 		{
 			var c = snake[i];
-			paint_cell(c.x, c.y);
+			paint_cell(c.x, c.y, color);
 		}
 
 
@@ -105,10 +112,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		ctx.strokeRect(0, 0, w, h);
 
     gameState = move_snake(gameState, 'p1');
+    if(!gameState) return;
     gameState = move_snake(gameState, 'p2');
+    if(!gameState) return;
 
-    ctx.fillStyle = '#fff';
-		paint_cell(food.x, food.y);
+		paint_cell(food.x, food.y, '#fff');
 		var score1_text = "P1 Score: " + gameState.p1_score;
 		var score2_text = "P2 Score: " + gameState.p2_score;
     ctx.fillStyle = "#888"
@@ -118,15 +126,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
   function endGame(winner) {
+    ctx.fillStyle = winner == 'Player 1' ? '#1da1f2' : '#c82345' ;
     ctx.clearRect(0,0,w,h);
     ctx.font = "20px sans-serif";
     ctx.textAlign = 'center';
-		ctx.fillText(winner+' wins', w/2, h/2);
+		ctx.fillText(winner+' wins', w/2, h/3);
+		ctx.fillText('Final Score:', w/2, h/2);
+		ctx.fillText('P1: '+gameState.p1_score+' to '+gameState.p2_score+':P2', w/2, h*2/3);
+    clearInterval(game_loop);
   }
 
-	function paint_cell(x, y)
+	function paint_cell(x, y, color)
 	{
-		ctx.fillStyle = "white";
+		ctx.fillStyle = color;
 		ctx.fillRect(x*cw, y*cw, cw, cw);
 		ctx.strokeStyle = "#111";
     ctx.lineWidth = 1;
@@ -145,15 +157,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	window.addEventListener('keydown', function(e){
 		var key = e.which || e.keyCode;
-		if(key == "37" && gameState.p1_dir != "right") gameState.p1_dir = "left";
-		else if(key == "38" && gameState.p1_dir != "down") gameState.p1_dir = "up";
-		else if(key == "39" && gameState.p1_dir != "left") gameState.p1_dir = "right";
-		else if(key == "40" && gameState.p1_dir != "up") gameState.p1_dir = "down";
+    if(key < 37 || key > 40 || !gameState) return;
+    if(!gameState.p1_key_sleep) {
+  		if(key == "37" && gameState.p1_dir != "right") gameState.p1_dir = "left";
+  		else if(key == "38" && gameState.p1_dir != "down") gameState.p1_dir = "up";
+  		else if(key == "39" && gameState.p1_dir != "left") gameState.p1_dir = "right";
+  		else if(key == "40" && gameState.p1_dir != "up") gameState.p1_dir = "down";
+      gameState.p1_key_sleep = true;
+      setTimeout(function() {if(gameState)gameState.p1_key_sleep = false}, framerate);
+    }
 
-		if(key == "37" && gameState.p2_dir != "right") gameState.p2_dir = "left";
-		else if(key == "38" && gameState.p2_dir != "down") gameState.p2_dir = "up";
-		else if(key == "39" && gameState.p2_dir != "left") gameState.p2_dir = "right";
-		else if(key == "40" && gameState.p2_dir != "up") gameState.p2_dir = "down";
+    if(!gameState.p2_key_sleep) {
+  		if(key == "37" && gameState.p2_dir != "right") gameState.p2_dir = "left";
+  		else if(key == "38" && gameState.p2_dir != "down") gameState.p2_dir = "up";
+  		else if(key == "39" && gameState.p2_dir != "left") gameState.p2_dir = "right";
+  		else if(key == "40" && gameState.p2_dir != "up") gameState.p2_dir = "down";
+      gameState.p2_key_sleep = true;
+      setTimeout(function() {if(gameState)gameState.p2_key_sleep = false}, framerate);
+    }
 	})
 
 });
