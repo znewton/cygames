@@ -19,8 +19,8 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 		p2_id: gameState.p2_id,
 	});
 	setTimeout(function() {
-		player1.disconnect();
-		player2.disconnect();
+		player1.leave(roomName);
+		player2.leave(roomName);
 	}, 1000);
 }
 function check_collision(x, y, array)
@@ -123,11 +123,13 @@ module.exports = {
 		});
 		// Handle players leaving early
 		player2.on('disconnect', () => {
+			if(gameState.over) return;
 			player2.leave(player2.roomName);
 			if(gameIntervals[player2.roomName])
 				endGame(players, player1, player2, 2, gameState, roomName);
 		});
 		player1.on('disconnect', () => {
+			if(gameState.over) return;
 			player1.leave(player1.roomName);
 			if(gameIntervals[player1.roomName])
 				endGame(players, player1, player2, 1, gameState, roomName);
