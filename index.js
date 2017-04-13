@@ -18,6 +18,7 @@ var config = {
 
 let pongQueue = [];
 let snakeQueue = [];
+let tankQueue = [];
 
 firebase.initializeApp(config);
 
@@ -95,6 +96,25 @@ io.on('connection', function(socket){
 			console.log(socket.userName+' added to Snake Queue');
 		}
 	});
+	socket.on('tanks:enterQueue', function(data) {
+		if(tankQueue.indexOf(socket) !== -1) return;
+		if(tankQueue.length) {
+			//make match
+			let player1 = tankQueue.pop();
+			let player2 = socket;
+			let roomName = player1.uid+player2.uid;
+			addUserToRoom(player1, roomName);
+			addUserToRoom(player2, roomName);
+			io.sockets.in(roomName).emit('chat:reset');
+			getMessagesForRoom(roomName);
+			tanks.startGame(io.sockets.in(roomName), player1, player2, roomName);
+			console.log('Tanks Match: '+player1.userName+' vs. '+player2.userName);
+		} else {
+			//add to queue
+			tankQueue.push(socket);
+			console.log(socket.userName+' added to Tanks Queue');
+		}
+	});
 
 	socket.on('chat:message', function(msg){
 		let messageData = {
@@ -141,6 +161,10 @@ io.on('connection', function(socket){
 		if(snakeQueue.indexOf(socket) !== -1) {
 			console.log(socket.userName+' removed from Snake queue by Unmount');
 			snakeQueue.splice(snakeQueue.indexOf(socket), 1);
+		}
+		if(tankQueue.indexOf(socket) !== -1) {
+			console.log(socket.userName+' removed from Tank queue by Unmount');
+			tankQueue.splice(tankQueue.indexOf(socket), 1);
 		}
 		socket.leave(socket.roomName);
 		socket.roomName = 'Main Room';

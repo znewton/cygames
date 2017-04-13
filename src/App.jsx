@@ -13,6 +13,7 @@ import NotFound from './Games/NotFound/NotFound.jsx';
 import Pong from './Games/Pong/Pong.jsx';
 import Snake from './Games/Snake/Snake.jsx';
 import Chess from './Games/Chess/Chess.jsx';
+import Tanks from './Games/Tanks/Tanks.jsx';
 
 export default class App extends Component {
 	constructor() {
@@ -50,10 +51,12 @@ export default class App extends Component {
 		const PongWrapper = () => (<div className="PongWrapper"><Pong socket={this.props.socket} user={this.props.user} /></div>);
 		const SnakeWrapper = () => (<div className="SnakeWrapper"><Snake socket={this.props.socket} user={this.props.user} /></div>);
 		const ChessWrapper = () => (<div className="ChessWrapper"><Chess socket={this.props.socket} user={this.props.user} /></div>);
+		const TanksWrapper = () => (<div className="TanksWrapper"><Tanks socket={this.props.socket} user={this.props.user} /></div>);
 		const routes = [
 			{path: 'pong', label: 'Pong'},
 			{path: 'snake', label: 'Snake'},
 			{path: 'chess', label: 'Chess'},
+			{path: 'tanks', label: 'Tanks'},
 		];
 		return (
 			<div className="App">
@@ -84,6 +87,7 @@ export default class App extends Component {
 						<Route path={'/pong'} component={PongWrapper} />
 						<Route path={'/snake'} component={SnakeWrapper} />
 						<Route path={'/chess'} component={ChessWrapper} />
+						<Route path={'/tanks'} component={TanksWrapper} />
 						<Route component={NotFound} />
 					</Switch> :
 					<Switch>
