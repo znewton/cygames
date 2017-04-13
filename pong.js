@@ -87,6 +87,7 @@ module.exports = {
 			p2_paddle_y: 40,
 			ball_x: 50,
 			ball_y: 50,
+			over: false,
 			res: 100,
 			ball_dir_x: 1, // Ball goes to the right first
 			ball_dir_y: 0,
@@ -102,11 +103,13 @@ module.exports = {
 		});
 		// Handle players leaving early
 		player2.on('disconnect', () => {
+			if(gameState.over) return;
 			player2.leave(player2.roomName);
 			if(gameIntervals[player2.roomName])
 				endGame(players, player1, player2, 2, gameState, roomName);
 		});
 		player1.on('disconnect', () => {
+			if(gameState.over) return;
 			player1.leave(player1.roomName);
 			if(gameIntervals[player1.roomName])
 				endGame(players, player1, player2, 1, gameState, roomName);
@@ -122,6 +125,7 @@ module.exports = {
 				gameState = ball_collision(gameState);
 				players.emit('pong:update-server', gameState);
 				if(gameState.p1_score == 10 || gameState.p2_score == 10) {
+					gameState.over = true;
 					endGame(players, player1, player2, null, gameState, roomName);
 				}
 			},frameRate);
