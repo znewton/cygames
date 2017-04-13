@@ -19,6 +19,14 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	// player1.disconnect();
 	// player2.disconnect();
 }
+function check_dir(newDir, oldDir) {
+	let dir = oldDir;
+	if(newDir == "left" && oldDir != "right") dir = "left";
+	else if(newDir == "up" && oldDir != "down") dir = "up";
+	else if(newDir == "right" && oldDir != "left") dir = "right";
+	else if(newDir == "down" && oldDir != "up") dir = "down";
+	return dir;
+}
 
 module.exports = {
 	startGame: function (players, player1, player2, roomName) {
