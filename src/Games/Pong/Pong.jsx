@@ -132,7 +132,7 @@ export default class Pong extends Component {
 	}
 	componentWillUnmount() {
 		// Disconnect socket if user exits window or goes to different page.
-		this.props.socket.emit('unmount');
+		// this.props.socket.emit('unmount');
 	}
 	render() {
 		return (

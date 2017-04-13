@@ -39,9 +39,13 @@ export default class App extends Component {
 		this.setState({userMenuOpen: !this.state.userMenuOpen});
 	}
 	handleGameChange() {
-		if(window.innerWidth >= 962) return;
-		this.setState({gameMenuOpen: false})
+		this.setState({gameMenuOpen: false});
+		this.unmountSocket();
 	}
+	unmountSocket() {
+	  console.log('unmount');
+	  this.props.socket.emit('socket:unmount');
+ 	}
 	render() {
 		const PongWrapper = () => (<div className="PongWrapper"><Pong socket={this.props.socket} user={this.props.user} /></div>);
 		const SnakeWrapper = () => (<div className="SnakeWrapper"><Snake socket={this.props.socket} user={this.props.user} /></div>);
@@ -63,6 +67,7 @@ export default class App extends Component {
 					login={()=> this.props.handleLogin()}
 					logout={()=> this.props.handleLogout()}
 					user={this.props.user}
+					onRouteChange={() => this.unmountSocket()}
 				/>
 				<GamesMenu
 					open={this.state.gameMenuOpen}
