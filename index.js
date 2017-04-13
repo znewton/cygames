@@ -60,6 +60,7 @@ io.on('connection', function(socket){
 		if(pongQueue.length) {
 			//make match
 			let player1 = pongQueue.pop();
+			console.log(pongQueue);
 			let player2 = socket;
 			let roomName = player1.uid+player2.uid;
 			addUserToRoom(player1, roomName);
@@ -116,6 +117,10 @@ io.on('connection', function(socket){
 			if(pongQueue.indexOf(socket) !== -1) {
 				pongQueue.splice(pongQueue.indexOf(socket), 1);
 			}
+			if(snakeQueue.indexOf(socket) !== -1) {
+				snakeQueue.splice(snakeQueue.indexOf(socket), 1);
+			}
+			socket.emit('chat:reset');
 			socket.leave(socket.roomName);
 			firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 				snapshot.forEach(function(groupID){
@@ -123,6 +128,7 @@ io.on('connection', function(socket){
 				});
 				firebase.database().ref('users/'+socket.userName).remove();
 			});
+			socket = null;
 	});
 	socket.on('unmount', function() {
 		if(pongQueue.indexOf(socket) !== -1) {
