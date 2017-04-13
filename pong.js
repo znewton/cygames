@@ -19,8 +19,10 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 		p1_id: gameState.p1_id,
 		p2_id: gameState.p2_id,
 	});
-	// player1.disconnect();
-	// player2.disconnect();
+	setTimeout(function() {
+		player1.disconnect();
+		player2.disconnect();
+	}, 1000);
 }
 function calculateBallYDir(gameState) {
 	// Increase or decrease the Ball's y velocity depending on where it hits the paddle
