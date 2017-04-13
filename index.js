@@ -57,6 +57,7 @@ io.on('connection', function(socket){
 		getMessagesForRoom("Main Room");
 	});
 	socket.on('pong:enterQueue', function(data) {
+		if(pongQueue.indexOf(socket) !== -1) return;
 		if(pongQueue.length) {
 			//make match
 			let player1 = pongQueue.pop();
@@ -76,6 +77,7 @@ io.on('connection', function(socket){
 		}
 	});
 	socket.on('snake:enterQueue', function(data) {
+		if(snakeQueue.indexOf(socket) !== -1) return;
 		if(snakeQueue.length) {
 			//make match
 			let player1 = snakeQueue.pop();
@@ -115,9 +117,11 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function(){
 			console.log('user disconnected');
 			if(pongQueue.indexOf(socket) !== -1) {
+				console.log(socket.userName+' removed from Pong queue by disconnect');
 				pongQueue.splice(pongQueue.indexOf(socket), 1);
 			}
 			if(snakeQueue.indexOf(socket) !== -1) {
+				console.log(socket.userName+' removed from Snake queue by disconnect');
 				snakeQueue.splice(snakeQueue.indexOf(socket), 1);
 			}
 			socket.emit('chat:reset');
@@ -128,13 +132,14 @@ io.on('connection', function(socket){
 				});
 				firebase.database().ref('users/'+socket.userName).remove();
 			});
-			socket = null;
 	});
-	socket.on('unmount', function() {
+	socket.on('socket:unmount', function() {
 		if(pongQueue.indexOf(socket) !== -1) {
+			console.log(socket.userName+' removed from Pong queue by Unmount');
 			pongQueue.splice(pongQueue.indexOf(socket), 1);
 		}
 		if(snakeQueue.indexOf(socket) !== -1) {
+			console.log(socket.userName+' removed from Snake queue by Unmount');
 			snakeQueue.splice(snakeQueue.indexOf(socket), 1);
 		}
 		socket.leave(socket.roomName);
