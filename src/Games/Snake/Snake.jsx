@@ -119,17 +119,33 @@ export default class Snake extends Component {
 								ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.1);
 		let pNum = this.state.userDetails.uid === gameState.p1_id ? 1 : 2;
 		// p1_snake ( left )
-		ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
+		let color = pNum === 1 ? '#1da1f2' : '#c82345';
+		for(let i = 0; i < gameState.p1_snake_array.length; i++)
+		{
+			let c = gameState.p1_snake_array[i];
+			this.paint_cell(ctx,
+											c.x,
+											c.y,
+											2*x_modifier,
+											color);
+		}
 		// p2_snake ( right )
-		ctx.fillStyle = pNum === 2 ? '#1da1f2' : '#c82345';
-		// Ball
-		ctx.fillStyle = '#fff';
-		ctx.fillRect(
-			Math.floor(gameState.ball_x*x_modifier-1*x_modifier),
-			Math.floor(gameState.ball_y*y_modifier-1*y_modifier),
-			Math.floor(2*x_modifier),
-			Math.floor(2*x_modifier),
-		);
+		color = pNum === 2 ? '#1da1f2' : '#c82345';
+		for(let i = 0; i < gameState.p2_snake_array.length; i++)
+		{
+			let c = gameState.p2_snake_array[i];
+			this.paint_cell(ctx,
+											c.x,
+											c.y,
+											2*x_modifier,
+											color);
+		}
+		// Food
+		this.paint_cell(ctx,
+									gameState.food.x,
+									gameState.food.y,
+									2*x_modifier,
+									'#fff');
 
 	}
 	handleMount(ctx) {
@@ -139,8 +155,6 @@ export default class Snake extends Component {
 		window.addEventListener('keydown', function(e) {
 			let code = e.which || e.keyCode;
 			let dir = '';
-	    if(key < 37 || key > 40) return;
-			e.preventDefault();
 			if(code === 37) { //left
 				dir = 'left';
 			} else if(code === 38) { //up
@@ -151,7 +165,8 @@ export default class Snake extends Component {
 				dir = 'down';
 			}
 			// Send update only if valid movement
-			if (dir == '') return;
+			if (dir === '') return;
+			e.preventDefault();
 			socket.emit('snake:update-client', {dir: dir});
 		})
 	}

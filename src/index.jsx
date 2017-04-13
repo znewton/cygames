@@ -8,10 +8,12 @@ import firebase from 'firebase';
 import App from './App.jsx';
 //Games imports
 import Pong from './Games/Pong/Pong.jsx';
+import Snake from './Games/Snake/Snake.jsx';
 import Chess from './Games/Chess/Chess.jsx';
 
 const routes = [
 	{path: 'pong', component: Pong, label: 'Pong'},
+	{path: 'snake', component: Snake, label: 'Snake'},
 	{path: 'chess', component: Chess, label: 'Chess'},
 ];
 const config = {

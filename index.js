@@ -6,6 +6,7 @@ const server = app.listen(port);
 const io = require('socket.io')(server);
 const firebase = require('firebase');
 const pong = require('./pong');
+const snake = require('./snake');
 
 var config = {
 	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
@@ -16,6 +17,7 @@ var config = {
 };
 
 let pongQueue = [];
+let snakeQueue = [];
 
 firebase.initializeApp(config);
 
@@ -29,7 +31,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/testing', function (request, response){
 	response.sendFile(path.resolve(__dirname, 'public/testingHTML', 'index.html'))
 });
-app.get('/snake', function (request, response){
+app.get('/snaketest', function (request, response){
 	response.sendFile(path.resolve(__dirname, 'public/snakeTest', 'snake.html'))
 });
 // Handles all routes so you do not get a not found error
@@ -71,6 +73,25 @@ io.on('connection', function(socket){
 			//add to queue
 			pongQueue.push(socket);
 			console.log(socket.userName+' added to Pong Queue');
+		}
+	});
+	socket.on('snake:enterQueue', function(data) {
+		socket.userName = data.userName;
+		socket.uid = data.uid;
+		if(snakeQueue.length) {
+			//make match
+			let player1 = snakeQueue.pop();
+			let player2 = socket;
+			let roomName = player1.uid+player2.uid;
+			addUserToRoom(player1, roomName);
+			addUserToRoom(player2, roomName);
+			getMessagesForRoom(roomName);
+			snake.startGame(io.sockets.in(roomName), player1, player2, roomName);
+			console.log('Snake Match: '+player1.userName+' vs. '+player2.userName);
+		} else {
+			//add to queue
+			snakeQueue.push(socket);
+			console.log(socket.userName+' added to Snake Queue');
 		}
 	});
 
