@@ -20,7 +20,10 @@ function startGame() {
     }
     else if(event.keyCode == 32){ //Spacebar
         //Fire Bullet
-        bullets.push(new bullet(5,5,"black",player1.x,player1.y,"player1"));
+        if(player1.numberOfShots>0){
+          player1.numberOfShots--;
+          bullets.push(new bullet(5,5,"black",player1.x,player1.y,"player1"));
+        }
     }
     if(event.keyCode == 87) { //w
         accelerateYP2(-2);
@@ -36,12 +39,16 @@ function startGame() {
     }
     else if(event.keyCode == 70){ //f
         //Fire Bullet
-        bullets.push(new bullet(5,5,"black",player2.x,player2.y,"player2"));
+        if(player2.numberOfShots>0){
+          player2.numberOfShots--;
+          bullets.push(new bullet(5,5,"black",player2.x,player2.y,"player2"));
+        }
     }
 });
     player1 = new component(30, 30, "red", 10, 120);
     player2 = new component(30, 30, "blue", 300, 120);
-    myScore = new component("30px", "Consolas", "black", 280, 40, "text");
+    player1Shots = new component("30px", "Consolas", "black", 180, 40, "text");
+    player2Shots = new component("30px", "Consolas", "black", 280, 40, "text");
     myGameArea.start();
 }
 
@@ -70,6 +77,7 @@ function component(width, height, color, x, y, type) {
     this.speedY = 0;
     this.x = x;
     this.y = y;
+    this.numberOfShots = 3;
     this.update = function() {
         ctx = myGameArea.context;
         if (this.type == "text") {
@@ -157,6 +165,7 @@ function bullet(width, height, color, x, y, shooter){
 
 function generateLevel(){
     myObstacles.push(new component(10, 50, "green", 50, 120));
+    myObstacles.push(new component(10, 50, "green", 260, 120));
 }
 
 function updateGameArea() {
@@ -194,8 +203,10 @@ function updateGameArea() {
         bullets[i].newPos();
         bullets[i].update();
     }
-    myScore.text="SCORE: " + myGameArea.frameNo;
-    myScore.update();
+    player1Shots.text = player1.numberOfShots;
+    player2Shots.text = player2.numberOfShots;
+    player1Shots.update();
+    player2Shots.update();
     player1.newPos();
     player1.update();
     player2.newPos();
