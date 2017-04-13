@@ -2,11 +2,6 @@ import React, { Component } from 'react';
 import Message from './Message/Message.jsx';
 import firebase from 'firebase';
 
-const io = require('socket.io-client');
-const socket = io();
-
-const rooms = ['Main Room', 'askdkjhlkjhfs-chat', 'Chess'];
-
 export default class ChatBar extends Component {
 	constructor(props) {
 		super(props);
@@ -16,7 +11,6 @@ export default class ChatBar extends Component {
 		};
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleEnterPress = this.handleEnterPress.bind(this);
-		socket.on('chat:message', (msg) => this.handleMessageReceive(msg));
 	}
 	handleInputChange(e) {
 		this.setState({input:e.target.value});
@@ -46,7 +40,7 @@ export default class ChatBar extends Component {
 		}, 1);
 	}
 	handleMessageSend() {
-		if(this.state.userDetails === null) return;
+		if(this.props.user === null) return;
 		let input = this.state.input;
 		input = input.trim();
 		if(input === '') {
@@ -54,33 +48,14 @@ export default class ChatBar extends Component {
 			return;
 		}
 		let messages = this.state.messages;
-		socket.emit('chat:message', {msg: input, groupName: rooms[0]});
+		this.props.socket.emit('chat:message', {msg: input});
 		this.setState({ messages, input: ''});
 	}
 	componentDidMount() {
 		let messageDiv = document.getElementById('messages');
 		messageDiv.scrollTop = messageDiv.scrollHeight;
-		firebase.auth().onAuthStateChanged(firebaseUser => {
-			if(firebaseUser) {
-				//user is signed in
-				this.setState({
-					messages: [],
-					userDetails:{
-						displayName: firebaseUser.displayName,
-						email: firebaseUser.email,
-						emailVerified: firebaseUser.emailVerified,
-						photoURL: firebaseUser.photoURL,
-						uid: firebaseUser.uid,
-						providerData: firebaseUser.providerData,
-					}
-				});
-				socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
-			} else {
-				this.setState({userDetails: null})
-			}
-		}, error => {
-			console.log(error);
-		});
+		this.props.socket.on('chat:message', (msg) => this.handleMessageReceive(msg));
+		this.props.socket.on('chat:reset', () => this.setState({messages: []}));
 	}
 	render() {
 		return (
@@ -99,7 +74,7 @@ export default class ChatBar extends Component {
 										onChange={this.handleInputChange}
 										onKeyPress={this.handleEnterPress}
 										placeholder="Enter message..."
-										disabled={!this.state.userDetails} />
+										disabled={!this.props.user} />
 					<button onClick={() => this.handleMessageSend()}><i className="fa fa-send" /></button>
 				</div>
 			</div>
@@ -109,7 +84,8 @@ export default class ChatBar extends Component {
 
 ChatBar.propTypes = {
 	open: React.PropTypes.bool,
-	user: React.PropTypes.object
+	user: React.PropTypes.object,
+	socket: React.PropTypes.object,
 };
 
 ChatBar.defaultProps = {

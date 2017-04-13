@@ -4,7 +4,9 @@ import Canvas from '../Canvas.jsx';
 
 let context = null;
 
-export default class Pong extends Component {
+let key_sleep = null;
+
+export default class Snake extends Component {
 	constructor() {
 		super();
 		// Set game defaults
@@ -15,22 +17,22 @@ export default class Pong extends Component {
 			starting: false,
 		};
 		// Set document title
-		document.title = 'Pong | cygames';
+		document.title = 'Snake | cygames';
 	}
 	componentDidMount() {
 		//Handle socket events
-		this.props.socket.emit("pong:enterQueue");
+		this.props.socket.emit("snake:enterQueue");
 		this.setState({queue: true}); // Set Queue state
-		this.props.socket.on('pong:update-server',(data) => {
+		this.props.socket.on('snake:update-server',(data) => {
 			this.canvasUpdate(context, data); // Update the canvas when game is actually being played
 		});
-		this.props.socket.on('pong:end',(data) => {
+		this.props.socket.on('snake:end',(data) => {
 			this.canvasGameEnd(context, data); // Show end game details
 		});
-		this.props.socket.on('pong:start',(data) => {
+		this.props.socket.on('snake:start',(data) => {
 			this.canvasGameStart(context, data); // Set Game start. Could potentially be altered to have opponent info
 		});
-		this.props.socket.on('pong:enterQueue',(data) => {
+		this.props.socket.on('snake:enterQueue',(data) => {
 			this.setState({queue: true}); // Set Queue state
 		});
 	}
@@ -72,6 +74,14 @@ export default class Pong extends Component {
 									ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.7);
 		this.setState({showButton: true});
 	}
+	paint_cell(ctx, x, y, cw, color)
+	{
+		ctx.fillStyle = color;
+		ctx.fillRect(x*cw, y*cw, cw, cw);
+		ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1;
+		ctx.strokeRect(x*cw, y*cw, cw, cw);
+	}
 	canvasUpdate(ctx, gameState) {
 		// Set the x and y modifiers to percentages based on canvas size and game resolution
 		let x_modifier = ctx.canvas.offsetWidth/gameState.res;
@@ -85,54 +95,61 @@ export default class Pong extends Component {
 		ctx.fillText(gameState.p1_score+'  |  '+gameState.p2_score,
 								ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.1);
 		let pNum = this.props.user.uid === gameState.p1_id ? 1 : 2;
-		// p1_paddle ( left )
-		ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
-		ctx.fillRect(
-			Math.floor(5*x_modifier),
-			Math.floor(gameState.p1_paddle_y*y_modifier-(16*y_modifier)/2),
-			Math.floor(0.5*x_modifier),
-			15*y_modifier
-		);
-		// p2_paddle ( right )
-		ctx.fillStyle = pNum === 2 ? '#1da1f2' : '#c82345';
-		ctx.fillRect(
-			Math.floor(ctx.canvas.offsetWidth-(5.5*x_modifier)),
-			Math.floor(gameState.p2_paddle_y*y_modifier - (16*y_modifier)/2),
-			Math.floor(0.5*x_modifier),
-			15*y_modifier
-		);
-		// Ball
-		ctx.fillStyle = '#fff';
-		ctx.fillRect(
-			Math.floor(gameState.ball_x*x_modifier-1*x_modifier),
-			Math.floor(gameState.ball_y*y_modifier-1*y_modifier),
-			Math.floor(2*x_modifier),
-			Math.floor(2*x_modifier),
-		);
+		// p1_snake ( left )
+		let color = pNum === 1 ? '#1da1f2' : '#c82345';
+		for(let i = 0; i < gameState.p1_snake_array.length; i++)
+		{
+			let c = gameState.p1_snake_array[i];
+			this.paint_cell(ctx,
+											c.x,
+											c.y,
+											2*x_modifier,
+											color);
+		}
+		// p2_snake ( right )
+		color = pNum === 2 ? '#1da1f2' : '#c82345';
+		for(let i = 0; i < gameState.p2_snake_array.length; i++)
+		{
+			let c = gameState.p2_snake_array[i];
+			this.paint_cell(ctx,
+											c.x,
+											c.y,
+											2*x_modifier,
+											color);
+		}
+		// Food
+		this.paint_cell(ctx,
+									gameState.food.x,
+									gameState.food.y,
+									2*x_modifier,
+									'#fff');
 
 	}
 	handleMount(ctx) {
 		// Set the component context to draw on for game updates
 		context = ctx;
 		// Set the game controls, Should probably change to be on the canvas, not window
-		window.addEventListener('keydown', (e) => {
+		window.addEventListener('keydown', (e) =>  {
 			let code = e.which || e.keyCode;
-			let offset = 0;
-			if(code === 38) { //up
-				e.preventDefault();
-				offset = -1;
+			let dir = '';
+			if(code === 37) { //left
+				dir = 'left';
+			} else if(code === 38) { //up
+				dir = 'up';
+			} else if(code === 39) { //right
+				dir = 'right';
 			} else if(code === 40) { //down
-				e.preventDefault();
-				offset = 1;
+				dir = 'down';
 			}
 			// Send update only if valid movement
-			if (offset == 0) return;
-			this.props.socket.emit('pong:update-client', {offset: offset});
+			if (dir === '') return;
+			e.preventDefault();
+			this.props.socket.emit('snake:update-client', {dir: dir});
 		})
 	}
 	componentWillUnmount() {
 		// Disconnect socket if user exits window or goes to different page.
-		// this.props.socket.emit('unmount');
+		this.props.socket.emit('unmount');
 	}
 	render() {
 		return (
@@ -147,8 +164,9 @@ export default class Pong extends Component {
 				</p>
 				}
 				<p className="game-description">
-					You are the <span style={{backgroundColor: '#1da1f2', color: '#fff'}}>Blue</span> paddle. <br/>
-					Use the up and down arrow keys to move.
+					You are the <span style={{backgroundColor: '#1da1f2', color: '#fff'}}>Blue</span> Snake. <br/>
+					Use the arrow keys to move. <br />
+					Eat more than the other snake, but dying will divide your score by theirs!
 				</p>
 			</div>
 		);

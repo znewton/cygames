@@ -6,6 +6,7 @@ const server = app.listen(port);
 const io = require('socket.io')(server);
 const firebase = require('firebase');
 const pong = require('./pong');
+const snake = require('./snake');
 
 var config = {
 	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
@@ -16,6 +17,7 @@ var config = {
 };
 
 let pongQueue = [];
+let snakeQueue = [];
 
 firebase.initializeApp(config);
 
@@ -26,10 +28,13 @@ var increment = 0;
 // serve static assets normally
 app.use(express.static(__dirname + '/public'));
 
-// Handles all routes so you do not get a not found error
 app.get('/testing', function (request, response){
 	response.sendFile(path.resolve(__dirname, 'public/testingHTML', 'index.html'))
 });
+app.get('/snaketest', function (request, response){
+	response.sendFile(path.resolve(__dirname, 'public/snakeTest', 'snake.html'))
+});
+// Handles all routes so you do not get a not found error
 app.post('*', function (request, response) {
 	console.log('post');
 });
@@ -44,23 +49,24 @@ io.on('connection', function(socket){
 	console.log("User connected");
 	socket.emit('recieveConfig',{data: config});
 
-	socket.on('startSession',function(msg){
-		socket.userName = msg.userName;
-		socket.uid = msg.uid;
+	socket.on('startSession',function(data){
+		socket.userName = data.userName;
+		socket.uid = data.uid;
 		writeUserData(socket.uid, socket.userName);
 		addUserToRoom(socket, "Main Room");
 		getMessagesForRoom("Main Room");
 	});
 	socket.on('pong:enterQueue', function(data) {
-		socket.userName = data.userName;
-		socket.uid = data.uid;
+		if(pongQueue.indexOf(socket) !== -1) return;
 		if(pongQueue.length) {
 			//make match
 			let player1 = pongQueue.pop();
+			console.log(pongQueue);
 			let player2 = socket;
 			let roomName = player1.uid+player2.uid;
 			addUserToRoom(player1, roomName);
 			addUserToRoom(player2, roomName);
+			io.sockets.in(roomName).emit('chat:reset');
 			getMessagesForRoom(roomName);
 			pong.startGame(io.sockets.in(roomName), player1, player2, roomName);
 			console.log('Pong Match: '+player1.userName+' vs. '+player2.userName);
@@ -68,6 +74,25 @@ io.on('connection', function(socket){
 			//add to queue
 			pongQueue.push(socket);
 			console.log(socket.userName+' added to Pong Queue');
+		}
+	});
+	socket.on('snake:enterQueue', function(data) {
+		if(snakeQueue.indexOf(socket) !== -1) return;
+		if(snakeQueue.length) {
+			//make match
+			let player1 = snakeQueue.pop();
+			let player2 = socket;
+			let roomName = player1.uid+player2.uid;
+			addUserToRoom(player1, roomName);
+			addUserToRoom(player2, roomName);
+			io.sockets.in(roomName).emit('chat:reset');
+			getMessagesForRoom(roomName);
+			snake.startGame(io.sockets.in(roomName), player1, player2, roomName);
+			console.log('Snake Match: '+player1.userName+' vs. '+player2.userName);
+		} else {
+			//add to queue
+			snakeQueue.push(socket);
+			console.log(socket.userName+' added to Snake Queue');
 		}
 	});
 
@@ -78,12 +103,12 @@ io.on('connection', function(socket){
 			sid: socket.uid,
 			timestamp: 1
 		};
-		let newMessageKey = firebase.database().ref().child('messages/' + msg.groupName).push().key;
+		let newMessageKey = firebase.database().ref().child('messages/' + socket.roomName).push().key;
 
 		// Write the new post's data simultaneously in the posts list and the user's post list.
 		let updates = {};
-		updates['/messages/'+ msg.groupName + "/" + newMessageKey] = messageData;
-
+		updates['/messages/'+ socket.roomName + "/" + newMessageKey] = messageData;
+		// console.log(socket.userName+' sent message to '+socket.roomName);
 		firebase.database().ref().update(updates);
 		sendMessage(socket.uid, socket.userName, msg.msg);
 		broadcastMessage(socket.uid, socket.userName, msg.msg);
@@ -92,8 +117,14 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function(){
 			console.log('user disconnected');
 			if(pongQueue.indexOf(socket) !== -1) {
+				console.log(socket.userName+' removed from Pong queue by disconnect');
 				pongQueue.splice(pongQueue.indexOf(socket), 1);
 			}
+			if(snakeQueue.indexOf(socket) !== -1) {
+				console.log(socket.userName+' removed from Snake queue by disconnect');
+				snakeQueue.splice(snakeQueue.indexOf(socket), 1);
+			}
+			socket.emit('chat:reset');
 			socket.leave(socket.roomName);
 			firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 				snapshot.forEach(function(groupID){
@@ -102,11 +133,20 @@ io.on('connection', function(socket){
 				firebase.database().ref('users/'+socket.userName).remove();
 			});
 	});
-	socket.on('manual-disconnect', function() {
+	socket.on('socket:unmount', function() {
 		if(pongQueue.indexOf(socket) !== -1) {
+			console.log(socket.userName+' removed from Pong queue by Unmount');
 			pongQueue.splice(pongQueue.indexOf(socket), 1);
 		}
+		if(snakeQueue.indexOf(socket) !== -1) {
+			console.log(socket.userName+' removed from Snake queue by Unmount');
+			snakeQueue.splice(snakeQueue.indexOf(socket), 1);
+		}
 		socket.leave(socket.roomName);
+		socket.roomName = 'Main Room';
+		socket.emit('chat:reset');
+		socket.join('Main Room');
+		getMessagesForRoom(socket.roomName);
 		firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 			snapshot.forEach(function(groupID){
 				firebase.database().ref('groups/'+groupID.key+'/members/'+socket.userName).remove();
@@ -163,10 +203,10 @@ io.on('connection', function(socket){
 		sock.roomName = groupName;
 		sock.join(sock.roomName);
 		let updates = {};
-		updates['/users/'+sock.userName+"/groups/"+groupName] = true;
-		updates['/groups/'+groupName+'/members/'+sock.userName] = true;
+		updates['/users/'+sock.userName+"/groups/"+sock.roomName] = true;
+		updates['/groups/'+sock.roomName+'/members/'+sock.userName] = true;
 
-		 firebase.database().ref().update(updates);
+		firebase.database().ref().update(updates);
 	}
 
 	function sendMessage(uid, sender, message){

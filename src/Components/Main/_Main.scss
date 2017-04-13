@@ -4,12 +4,15 @@
   width: 100vw;
   left: 0;
   height: 100vh;
+  box-sizing: border-box;
   top: 0;
   padding-top: $navbar_height;
   transform-origin: left;
   section {
     position: relative;
     padding: 1em;
+    height: 100%;
+    overflow-y: auto;
   }
   @include transition(transform 125ms ease-out);
   @include bp-large {

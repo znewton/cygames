@@ -16,7 +16,7 @@ export default class Navbar extends Component {
 					</span>
 				</div>
 				<div className="navbar-middle">
-					<Link to="/"><h2>CyGames</h2></Link>
+					<Link to="/" onClick={() => this.props.onRouteChange()}><h2>CyGames</h2></Link>
 					{this.props.user === null ?
 						<button
 							className="login"
@@ -57,6 +57,7 @@ Navbar.propTypes = {
 	userMenuToggle: React.PropTypes.func,
 	login: React.PropTypes.func,
 	logout: React.PropTypes.func,
+	onRouteChange: React.PropTypes.func,
 	user: React.PropTypes.object,
 };
 
