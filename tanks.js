@@ -25,6 +25,101 @@ function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	}, 1000);
 }
 
+function component(width, height, color, x, y, type) {
+	this.type = type;
+	this.score = 0;
+	this.width = width;
+	this.height = height;
+	this.speedX = 0;
+	this.speedY = 0;
+	this.x = x;
+	this.y = y;
+	this.numberOfShots = 3;
+	this.update = function() {
+		ctx = myGameArea.context;
+		if (this.type == "text") {
+			ctx.font = this.width + " " + this.height;
+			ctx.fillStyle = color;
+			ctx.fillText(this.text, this.x, this.y);
+		} else {
+			ctx.fillStyle = color;
+			ctx.fillRect(this.x, this.y, this.width, this.height);
+		}
+	}
+	this.newPos = function() {
+		this.x += this.speedX;
+		this.y += this.speedY;
+		this.hitBottom();
+	}
+	this.hitBottom = function() {
+		var rockbottom = myGameArea.canvas.height - this.height;
+		if (this.y > rockbottom) {
+			this.y = rockbottom;
+		}
+	}
+	this.crashWith = function(otherobj) {
+		var myleft = this.x;
+		var myright = this.x + (this.width);
+		var mytop = this.y;
+		var mybottom = this.y + (this.height);
+		var otherleft = otherobj.x;
+		var otherright = otherobj.x + (otherobj.width);
+		var othertop = otherobj.y;
+		var otherbottom = otherobj.y + (otherobj.height);
+		var crash = true;
+		if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+			crash = false;
+		}
+		return crash;
+	}
+}
+
+function bullet(width, height, color, x, y, shooter){
+	this.shooter = shooter;
+	this.width = width;
+	this.height = height;
+	this.speedX = 1;
+	this.speedY = 0;
+	this.x = x;
+	this.y = y;
+	this.update = function() {
+		ctx = myGameArea.context;
+		ctx.fillStyle = color;
+		ctx.fillRect(this.x, this.y, this.width, this.height);
+	}
+	this.newPos = function() {
+		if (this.shooter == "player1") {
+			this.x += this.speedX;
+			this.y += this.speedY;
+		} else {
+			this.x -= this.speedX;
+			this.y += this.speedY;
+		}
+		this.hitBottom();
+	}
+	this.hitBottom = function() {
+		var rockbottom = myGameArea.canvas.height - this.height;
+		if (this.y > rockbottom) {
+			this.y = rockbottom;
+		}
+	}
+	this.crashWith = function(otherobj) {
+		var myleft = this.x;
+		var myright = this.x + (this.width);
+		var mytop = this.y;
+		var mybottom = this.y + (this.height);
+		var otherleft = otherobj.x;
+		var otherright = otherobj.x + (otherobj.width);
+		var othertop = otherobj.y;
+		var otherbottom = otherobj.y + (otherobj.height);
+		var crash = true;
+		if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+			crash = false;
+		}
+		return crash;
+	}
+}
+
 module.exports = {
 	startGame: function (players, player1, player2, roomName) {
 		// Set base game state
@@ -33,9 +128,9 @@ module.exports = {
 			p2_id: player2.uid,
 			p1_lives: 1,
 			p2_lives: 1,
-      p1: new component(30, 30, "red", 10, 120),
-      p2: new component(30, 30, "blue", 300, 120),
-      bullets: [],
+      		p1: new component(30, 30, "red", 10, 120),
+      		p2: new component(30, 30, "blue", 300, 120),
+      		bullets: [],
 			over: false,
 			res: 100
 		};
@@ -83,99 +178,4 @@ module.exports = {
 			},frameRate);
 		},4100);
 	}
-
-  function component(width, height, color, x, y, type) {
-      this.type = type;
-      this.score = 0;
-      this.width = width;
-      this.height = height;
-      this.speedX = 0;
-      this.speedY = 0;
-      this.x = x;
-      this.y = y;
-      this.numberOfShots = 3;
-      this.update = function() {
-          ctx = myGameArea.context;
-          if (this.type == "text") {
-              ctx.font = this.width + " " + this.height;
-              ctx.fillStyle = color;
-              ctx.fillText(this.text, this.x, this.y);
-          } else {
-              ctx.fillStyle = color;
-              ctx.fillRect(this.x, this.y, this.width, this.height);
-          }
-      }
-      this.newPos = function() {
-          this.x += this.speedX;
-          this.y += this.speedY;
-          this.hitBottom();
-      }
-      this.hitBottom = function() {
-          var rockbottom = myGameArea.canvas.height - this.height;
-          if (this.y > rockbottom) {
-              this.y = rockbottom;
-          }
-      }
-      this.crashWith = function(otherobj) {
-          var myleft = this.x;
-          var myright = this.x + (this.width);
-          var mytop = this.y;
-          var mybottom = this.y + (this.height);
-          var otherleft = otherobj.x;
-          var otherright = otherobj.x + (otherobj.width);
-          var othertop = otherobj.y;
-          var otherbottom = otherobj.y + (otherobj.height);
-          var crash = true;
-          if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-              crash = false;
-          }
-          return crash;
-      }
-  }
-
-  function bullet(width, height, color, x, y, shooter){
-      this.shooter = shooter;
-      this.width = width;
-      this.height = height;
-      this.speedX = 1;
-      this.speedY = 0;
-      this.x = x;
-      this.y = y;
-      this.update = function() {
-          ctx = myGameArea.context;
-          ctx.fillStyle = color;
-          ctx.fillRect(this.x, this.y, this.width, this.height);
-      }
-      this.newPos = function() {
-          if (this.shooter == "player1") {
-              this.x += this.speedX;
-              this.y += this.speedY;
-          } else {
-              this.x -= this.speedX;
-              this.y += this.speedY;
-          }
-          this.hitBottom();
-      }
-      this.hitBottom = function() {
-          var rockbottom = myGameArea.canvas.height - this.height;
-          if (this.y > rockbottom) {
-              this.y = rockbottom;
-          }
-      }
-      this.crashWith = function(otherobj) {
-          var myleft = this.x;
-          var myright = this.x + (this.width);
-          var mytop = this.y;
-          var mybottom = this.y + (this.height);
-          var otherleft = otherobj.x;
-          var otherright = otherobj.x + (otherobj.width);
-          var othertop = otherobj.y;
-          var otherbottom = otherobj.y + (otherobj.height);
-          var crash = true;
-          if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-              crash = false;
-          }
-          return crash;
-      }
-  }
 };

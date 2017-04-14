@@ -7,6 +7,7 @@ const io = require('socket.io')(server);
 const firebase = require('firebase');
 const pong = require('./pong');
 const snake = require('./snake');
+const tanks = require('./tanks');
 
 var config = {
 	apiKey: "AIzaSyA1fhVzgiiYt27zj98FabJN-fKGp4ioMCY",
