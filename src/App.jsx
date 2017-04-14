@@ -108,5 +108,7 @@ export default class App extends Component {
 
 App.propTypes = {
 	routes: React.PropTypes.array.isRequired,
-	provider: React.PropTypes.object,
+	socket: React.PropTypes.object.isRequired,
+	handleLogin: React.PropTypes.func.isRequired,
+	handleLogout: React.PropTypes.func.isRequired,
 };

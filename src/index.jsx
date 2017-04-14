@@ -62,7 +62,7 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 	} else {
 	render((
 		<BrowserRouter>
-			<App socket={socket} user={null} />
+			<App socket={socket} user={null} handleLogout={() => handleLogout()} handleLogin={() => handleLogin()} />
 		</BrowserRouter>
 	), document.getElementById('root'));
 	}
