@@ -143,9 +143,11 @@ io.on('connection', function(socket){
 			snakeQueue.splice(snakeQueue.indexOf(socket), 1);
 		}
 		socket.leave(socket.roomName);
+		console.log(socket.userName+' left '+socket.roomName);
 		socket.roomName = 'Main Room';
 		socket.emit('chat:reset');
 		socket.join('Main Room');
+		console.log(socket.userName+' joined '+socket.roomName);
 		getMessagesForRoom(socket.roomName);
 		firebase.database().ref('users/'+socket.userName+'/groups').once('value').then(function(snapshot){
 			snapshot.forEach(function(groupID){
