@@ -55,7 +55,7 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 			socket.emit("startSession", {uid: firebaseUser.uid, userName: firebaseUser.displayName});
 			render((
 				<BrowserRouter>
-					<App socket={socket} user={userDetails} />
+					<App socket={socket} user={userDetails} handleLogout={() => handleLogout()} handleLogin={() => handleLogin()} />
 				</BrowserRouter>
 			), document.getElementById('root'));
 		});
@@ -72,7 +72,7 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 
 render((
 	<BrowserRouter>
-		<App socket={socket} user={null} />
+		<App socket={socket} user={null} handleLogout={() => handleLogout()} handleLogin={() => handleLogin()} />
 	</BrowserRouter>
 ), document.getElementById('root'));
 
