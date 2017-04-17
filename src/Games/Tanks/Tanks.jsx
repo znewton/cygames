@@ -108,12 +108,15 @@ export default class Tanks extends Component {
     ctx.font = '40px courier';
     ctx.fillStyle = '#888';
     ctx.textAlign = 'center';
-    ctx.fillText(gameState.p1_lives+'  |  '+gameState.p2_lives,
+    ctx.fillText(gameState.p1.numberOfShots+'  |  '+gameState.p2.numberOfShots,
                 ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.1);
     var i;
     for (i = 0; i < gameState.bullets.length; i += 1) {
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect((gameState.bullets[i].x*x_modifier - (16*x_modifier)/2), (gameState.bullets[i].y*y_modifier-(16*y_modifier)/2), gameState.bullets[i].width, gameState.bullets[i].height);
+        ctx.fillRect(Math.floor(gameState.bullets[i].x*x_modifier - (16*x_modifier)/2),
+        Math.floor(gameState.bullets[i].y*y_modifier-(16*y_modifier)/2),
+        gameState.bullets[i].width,
+        gameState.bullets[i].height);
     }
     ctx.fillStyle = '#1da1f2';
     ctx.fillRect(Math.floor(gameState.p1.x*x_modifier - (16*x_modifier)/2),
@@ -128,27 +131,40 @@ export default class Tanks extends Component {
   handleMount(ctx) {
 		// Set the component context to draw on for game updates
 		context = ctx;
+        let fire = false;
 		// Set the game controls, Should probably change to be on the canvas, not window
 		window.addEventListener('keydown', (e) =>  {
 			let code = e.which || e.keyCode;
             let offsetX = 0;
             let offsetY = 0;
 			if(code === 37) { //left
-				offsetX = -1;
+                e.preventDefault();
+                offsetX = -1;
 			} else if(code === 38) { //up
+                e.preventDefault();
 				offsetY = 1;
 			} else if(code === 39) { //right
+                e.preventDefault();
 				offsetX = 1;
 			} else if(code === 40) { //down
+                e.preventDefault();
 				offsetY = -1;
 			}else if(code === 32){ //spacebar
-                this.props.socket.emit('tanks:fire');
+                e.preventDefault();
+                fire = true;
             }
 			// Send update only if valid movement
-			if (offsetY === 0 && offsetX === 0) return;
+			if (offsetY === 0 && offsetX === 0 && !fire ) return;
 			e.preventDefault();
-			this.props.socket.emit('tanks:update-client', {offsetY: offsetY, offsetX: offsetX});
-		})
+			this.props.socket.emit('tanks:update-client', {offsetY: offsetY, offsetX: offsetX, fire:fire});
+            fire = false;
+		});
+       window.addEventListener('keyup', (e) =>  {
+           let code = e.which || e.keyCode;
+           if(code == 32){
+               fire = false;
+           }
+       });
 	}
   componentWillUnmount() {
     // Disconnect socket if user exits window or goes to different page.

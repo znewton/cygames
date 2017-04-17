@@ -2,6 +2,8 @@ let gameIntervals = {};
 const moveAmount = 2;
 const ball_width = 4;
 const frameRate = 35;
+let limiter1 = 0;
+let limiter2 = 0;
 
 function endGame(players, player1, player2, playerDC, gameState, roomName) {
 	// Clear the game interval after the game exits. VERY IMPORTANT
@@ -31,7 +33,7 @@ function component(width, height, color, x, y, type) {
 	this.speedY = 0;
 	this.x = x;
 	this.y = y;
-	this.numberOfShots = 3;
+	this.numberOfShots = 30;
 	this.update = function() {
 		ctx = myGameArea.context;
 		if (this.type == "text") {
@@ -121,18 +123,22 @@ module.exports = {
 		players.emit('tanks:start', gameState);
 		// Recieve player movement updates
 		player1.on('tanks:update-client', (data) => {
+			if(data.fire && gameState.p1.numberOfShots > 0 && limiter1%3 ===0){
+				gameState.p1.numberOfShots--;
+				gameState.bullets.push(new bullet(5,4,"black",gameState.p1.x,gameState.p1.y,"player1"));
+			}
+			limiter1++;
 			gameState.p1.y += data.offsetY*moveAmount*frameRate/100;
       		gameState.p1.x += data.offsetX*moveAmount*frameRate/100;
 		});
-		player1.on('tanks:fire', (data)=> {
-			gameState.bullets.push(new bullet(5,4,"black",gameState.p1.x,gameState.p1.y,"player1"));
-		});
 		player2.on('tanks:update-client', (data) => {
+			if(data.fire && gameState.p2.numberOfShots > 0 && limiter2%3 === 0){
+				gameState.p2.numberOfShots--;
+				gameState.bullets.push(new bullet(5,4,"black",gameState.p2.x,gameState.p2.y,"player2"));
+			}
+			limiter2++;
 			gameState.p2.y+= data.offsetY*moveAmount*frameRate/100;
       		gameState.p2.x+= data.offsetX*moveAmount*frameRate/100;
-		});
-		player2.on('tanks:fire', (data)=> {
-			gameState.bullets.push(new bullet(5,4,"black",gameState.p2.x,gameState.p2.y,"player2"));
 		});
 		// Handle players leaving early
 		player2.on('disconnect', () => {
@@ -166,6 +172,11 @@ module.exports = {
 				players.emit('tanks:update-server', gameState);
 				if(gameState.p1_lives <= 0 || gameState.p2_lives <= 0) {
 					gameState.over = true;
+					if(gameState.p1_lives < 0){
+						gameState.p1_lives = 0;
+					}else if(gameState.p2_lives < 0){
+						gameState.p2_lives = 0;
+					}
 					endGame(players, player1, player2, null, gameState, roomName);
 				}
 			},frameRate);
