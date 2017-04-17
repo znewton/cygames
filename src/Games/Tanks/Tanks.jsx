@@ -101,16 +101,28 @@ export default class Tanks extends Component {
 		this.setState({showButton: true});
   }
   canvasUpdate(ctx, gameState) {
+    let x_modifier = ctx.canvas.offsetWidth/gameState.res;
+    let y_modifier = ctx.canvas.offsetHeight/gameState.res;
     ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+    // Score
+    ctx.font = '40px courier';
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    ctx.fillText(gameState.p1_lives+'  |  '+gameState.p2_lives,
+                ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.1);
     var i;
     for (i = 0; i < gameState.bullets.length; i += 1) {
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(gameState.bullets[i].x, gameState.bullets[i].y, gameState.bullets[i].width, gameState.bullets[i].height);
+        ctx.fillRect((gameState.bullets[i].x*x_modifier - (16*x_modifier)/2), (gameState.bullets[i].y*y_modifier-(16*y_modifier)/2), gameState.bullets[i].width, gameState.bullets[i].height);
     }
     ctx.fillStyle = '#1da1f2';
-    ctx.fillRect(gameState.p1.x, gameState.p1.y, gameState.p1.width, gameState.p1.height);
+    ctx.fillRect(Math.floor(gameState.p1.x*x_modifier - (16*x_modifier)/2),
+    			Math.floor(gameState.p1.y*y_modifier-(16*y_modifier)/2) ,
+          gameState.p1.width, gameState.p1.height);
     ctx.fillStyle = '#c82345';
-    ctx.fillRect(gameState.p2.x, gameState.p2.y, gameState.p2.width, gameState.p2.height);
+    ctx.fillRect(Math.floor(gameState.p2.x*x_modifier - (16*x_modifier)/2),
+    			Math.floor(gameState.p2.y*y_modifier - (16*y_modifier)/2),
+          gameState.p2.width, gameState.p2.height);
   }
 
   handleMount(ctx) {

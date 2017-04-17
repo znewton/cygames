@@ -1,6 +1,4 @@
 let gameIntervals = {};
-const ball_move_amount_y = 1;
-const ball_move_amount_x = 1;
 const moveAmount = 2;
 const ball_width = 4;
 const frameRate = 35;
@@ -58,13 +56,13 @@ function component(width, height, color, x, y, type) {
 	}
 	this.crashWith = function(otherobj) {
 		var myleft = this.x;
-		var myright = this.x + (this.width);
+		var myright = this.x + (this.width*.5);
 		var mytop = this.y;
-		var mybottom = this.y + (this.height);
+		var mybottom = this.y + (this.height*.5);
 		var otherleft = otherobj.x;
-		var otherright = otherobj.x + (otherobj.width);
+		var otherright = otherobj.x + (otherobj.width*.5);
 		var othertop = otherobj.y;
-		var otherbottom = otherobj.y + (otherobj.height);
+		var otherbottom = otherobj.y + (otherobj.height*.5);
 		var crash = true;
 		if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
 			crash = false;
@@ -77,15 +75,10 @@ function bullet(width, height, color, x, y, shooter){
 	this.shooter = shooter;
 	this.width = width;
 	this.height = height;
-	this.speedX = 10;
+	this.speedX = 1;
 	this.speedY = 0;
 	this.x = x;
 	this.y = y;
-	this.update = function() {
-		ctx = myGameArea.context;
-		ctx.fillStyle = color;
-		ctx.fillRect(this.x, this.y, this.width, this.height);
-	}
 	this.newPos = function() {
 		if (this.shooter == "player1") {
 			this.x += this.speedX;
@@ -93,21 +86,15 @@ function bullet(width, height, color, x, y, shooter){
 			this.x -= this.speedX;
 		}
 	}
-	this.hitBottom = function() {
-		var rockbottom = myGameArea.canvas.height - this.height;
-		if (this.y > rockbottom) {
-			this.y = rockbottom;
-		}
-	}
 	this.crashWith = function(otherobj) {
 		var myleft = this.x;
-		var myright = this.x + (this.width);
+		var myright = this.x + (this.width*.5);
 		var mytop = this.y;
-		var mybottom = this.y + (this.height);
+		var mybottom = this.y + (this.height*.5);
 		var otherleft = otherobj.x;
-		var otherright = otherobj.x + (otherobj.width);
+		var otherright = otherobj.x + (otherobj.width*.5);
 		var othertop = otherobj.y;
-		var otherbottom = otherobj.y + (otherobj.height);
+		var otherbottom = otherobj.y + (otherobj.height*.5);
 		var crash = true;
 		if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
 			crash = false;
@@ -124,8 +111,8 @@ module.exports = {
 			p2_id: player2.uid,
 			p1_lives: 3,
 			p2_lives: 3,
-      		p1: new component(30, 30, "red", 10, 120),
-      		p2: new component(30, 30, "blue", 300, 120),
+      		p1: new component(30, 30, "red", 10, 50),
+      		p2: new component(30, 30, "blue", 90, 50),
       		bullets: [],
 			over: false,
 			res: 100
@@ -138,14 +125,14 @@ module.exports = {
       		gameState.p1.x += data.offsetX*moveAmount*frameRate/100;
 		});
 		player1.on('tanks:fire', (data)=> {
-			gameState.bullets.push(new bullet(5,gameState.p1.height,"black",gameState.p1.x,gameState.p1.y,"player1"));
+			gameState.bullets.push(new bullet(5,4,"black",gameState.p1.x,gameState.p1.y,"player1"));
 		});
 		player2.on('tanks:update-client', (data) => {
 			gameState.p2.y+= data.offsetY*moveAmount*frameRate/100;
       		gameState.p2.x+= data.offsetX*moveAmount*frameRate/100;
 		});
 		player2.on('tanks:fire', (data)=> {
-			gameState.bullets.push(new bullet(5,gameState.p2.height,"black",gameState.p2.x,gameState.p2.y,"player2"));
+			gameState.bullets.push(new bullet(5,4,"black",gameState.p2.x,gameState.p2.y,"player2"));
 		});
 		// Handle players leaving early
 		player2.on('disconnect', () => {
@@ -166,12 +153,12 @@ module.exports = {
 	        for(i = 0; i < gameState.bullets.length;i++){
 	          gameState.bullets[i].newPos();
 			  if(gameState.bullets[i].crashWith(gameState.p2) && gameState.bullets[i].shooter === "player1"){
-				  gameState.p2_lives--;
+				  			gameState.p2_lives--;
 	              gameState.bullets.splice(i,1);
 	              return;
 	          }
 	          if(gameState.bullets[i].crashWith(gameState.p1) && gameState.bullets[i].shooter === "player2"){
-				  gameState.p1_lives--;
+				  			gameState.p1_lives--;
 	              gameState.bullets.splice(i,1);
 	              return;
 	          }
