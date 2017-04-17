@@ -88,13 +88,13 @@ function bullet(width, height, color, x, y, shooter){
 	}
 	this.crashWith = function(otherobj) {
 		var myleft = this.x;
-		var myright = this.x + (this.width*.5);
+		var myright = this.x + (this.width/6);
 		var mytop = this.y;
-		var mybottom = this.y + (this.height*.5);
+		var mybottom = this.y + (this.height/6);
 		var otherleft = otherobj.x;
-		var otherright = otherobj.x + (otherobj.width*.5);
+		var otherright = otherobj.x + (otherobj.width/6);
 		var othertop = otherobj.y;
-		var otherbottom = otherobj.y + (otherobj.height*.5);
+		var otherbottom = otherobj.y + (otherobj.height/6);
 		var crash = true;
 		if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
 			crash = false;
@@ -153,12 +153,12 @@ module.exports = {
 	        for(i = 0; i < gameState.bullets.length;i++){
 	          gameState.bullets[i].newPos();
 			  if(gameState.bullets[i].crashWith(gameState.p2) && gameState.bullets[i].shooter === "player1"){
-				  			gameState.p2_lives--;
+				  gameState.p2_lives--;
 	              gameState.bullets.splice(i,1);
 	              return;
 	          }
 	          if(gameState.bullets[i].crashWith(gameState.p1) && gameState.bullets[i].shooter === "player2"){
-				  			gameState.p1_lives--;
+				  gameState.p1_lives--;
 	              gameState.bullets.splice(i,1);
 	              return;
 	          }
