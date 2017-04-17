@@ -3,7 +3,6 @@ const ball_move_amount_y = 1;
 const ball_move_amount_x = 1;
 const moveAmount = 2;
 const ball_width = 4;
-const paddle_height = 16;
 const frameRate = 35;
 
 function endGame(players, player1, player2, playerDC, gameState, roomName) {
@@ -78,7 +77,7 @@ function bullet(width, height, color, x, y, shooter){
 	this.shooter = shooter;
 	this.width = width;
 	this.height = height;
-	this.speedX = 1;
+	this.speedX = 10;
 	this.speedY = 0;
 	this.x = x;
 	this.y = y;
@@ -90,12 +89,9 @@ function bullet(width, height, color, x, y, shooter){
 	this.newPos = function() {
 		if (this.shooter == "player1") {
 			this.x += this.speedX;
-			this.y += this.speedY;
 		} else {
 			this.x -= this.speedX;
-			this.y += this.speedY;
 		}
-		this.hitBottom();
 	}
 	this.hitBottom = function() {
 		var rockbottom = myGameArea.canvas.height - this.height;
@@ -126,8 +122,8 @@ module.exports = {
 		let gameState = {
 			p1_id: player1.uid,
 			p2_id: player2.uid,
-			p1_lives: 1,
-			p2_lives: 1,
+			p1_lives: 3,
+			p2_lives: 3,
       		p1: new component(30, 30, "red", 10, 120),
       		p2: new component(30, 30, "blue", 300, 120),
       		bullets: [],
@@ -138,18 +134,18 @@ module.exports = {
 		players.emit('tanks:start', gameState);
 		// Recieve player movement updates
 		player1.on('tanks:update-client', (data) => {
-      if(data.fire){
-        gameState.bullets.push(new bullet(5,5,"black",player1.x,player1.y,"player1"));
-      }
 			gameState.p1.y += data.offsetY*moveAmount*frameRate/100;
-      gameState.p1.x += data.offsetX*moveAmount*frameRate/100;
+      		gameState.p1.x += data.offsetX*moveAmount*frameRate/100;
+		});
+		player1.on('tanks:fire', (data)=> {
+			gameState.bullets.push(new bullet(5,gameState.p1.height,"black",gameState.p1.x,gameState.p1.y,"player1"));
 		});
 		player2.on('tanks:update-client', (data) => {
-      if(data.fire){
-        gameState.bullets.push(new bullet(5,5,"black",player2.x,player2.y,"player2"));
-      }
 			gameState.p2.y+= data.offsetY*moveAmount*frameRate/100;
-      gameState.p2.x+= data.offsetX*moveAmount*frameRate/100;
+      		gameState.p2.x+= data.offsetX*moveAmount*frameRate/100;
+		});
+		player2.on('tanks:fire', (data)=> {
+			gameState.bullets.push(new bullet(5,gameState.p2.height,"black",gameState.p2.x,gameState.p2.y,"player2"));
 		});
 		// Handle players leaving early
 		player2.on('disconnect', () => {
@@ -167,11 +163,21 @@ module.exports = {
 		// Start the game loop after 4.1 seconds
 		setTimeout(function() {
 			gameIntervals[roomName] = setInterval(() => {
-        for(i = 0; i < gameState.bullets.length;i++){
-          gameState.bullets[i].newPos;
-        }
+	        for(i = 0; i < gameState.bullets.length;i++){
+	          gameState.bullets[i].newPos();
+			  if(gameState.bullets[i].crashWith(gameState.p2) && gameState.bullets[i].shooter === "player1"){
+				  gameState.p2_lives--;
+	              gameState.bullets.splice(i,1);
+	              return;
+	          }
+	          if(gameState.bullets[i].crashWith(gameState.p1) && gameState.bullets[i].shooter === "player2"){
+				  gameState.p1_lives--;
+	              gameState.bullets.splice(i,1);
+	              return;
+	          }
+	        }
 				players.emit('tanks:update-server', gameState);
-				if(gameState.p1_lives < 1 || gameState.p2_lives < 10) {
+				if(gameState.p1_lives <= 0 || gameState.p2_lives <= 0) {
 					gameState.over = true;
 					endGame(players, player1, player2, null, gameState, roomName);
 				}

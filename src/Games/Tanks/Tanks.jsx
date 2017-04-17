@@ -4,6 +4,34 @@ import Canvas from '../Canvas.jsx';
 
 let context = null;
 
+function objectsCrashWith(object1,otherobj) {
+    var myleft = object1.x;
+    var myright = object1.x + (object1.width);
+    var mytop = object1.y;
+    var mybottom = object1.y + (object1.height);
+    var otherleft = otherobj.x;
+    var otherright = otherobj.x + (otherobj.width);
+    var othertop = otherobj.y;
+    var otherbottom = otherobj.y + (otherobj.height);
+    var crash = true;
+    if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+        crash = false;
+    }
+    return crash;
+}
+function objectsNewPos(object){
+    object.x += object.speedX;
+    object.y += object.speedY;
+}
+
+function bulletsNewPos(bullet){
+    if (bullet.shooter === "player1") {
+        bullet.x += bullet.speedX;
+    }else{
+        bullet.x += bullet.speedX;
+    }
+}
+
 export default class Tanks extends Component {
   constructor() {
     super();
@@ -51,11 +79,11 @@ export default class Tanks extends Component {
 										ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.3);
 		} else { // Display which player won or tie
 			let pNum = this.props.user.uid === data.p1_id ? 1 : 2;
-			if(data.p1_lives > data.p2_lives) {
+			if(data.p2_lives  <=  0) {
 			  ctx.fillStyle = pNum === 1 ? '#1da1f2' : '#c82345';
 				ctx.fillText('Player 1 Wins!',
 											ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.3);
-			} else if (data.p1_lives < data.p2_lives) {
+			} else if (data.p1_lives <= 0) {
 				ctx.fillStyle = pNum === 2 ? '#1da1f2' : '#c82345';
 				ctx.fillText('Player 2 Wins!',
 											ctx.canvas.offsetWidth/2, ctx.canvas.offsetHeight*0.3);
@@ -73,26 +101,16 @@ export default class Tanks extends Component {
 		this.setState({showButton: true});
   }
   canvasUpdate(ctx, gameState) {
-    for(i=0;i < gameState.bullets.length;i++){
-        if(gameState.bullets[i].crashWith(gameState.p1) && gameState.bullets[i].shooter != "player1"){
-            gameState.bullets.splice(i,1);
-            alert("player 2 gets the w.");
-            return;
-        }
-        if(gameState.bullets[i].crashWith(gameState.p2) && gameState.bullets[i].shooter != "player2"){
-            gameState.bullets.splice(i,1);
-            alert("player 1 gets the w.");
-            return;
-        }
-    }
+    ctx.clearRect(0,0,ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+    var i;
     for (i = 0; i < gameState.bullets.length; i += 1) {
-        gameState.bullets[i].newPos();
-        gameState.bullets[i].update();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(gameState.bullets[i].x, gameState.bullets[i].y, gameState.bullets[i].width, gameState.bullets[i].height);
     }
-    gameState.p1.newPos();
-    gameState.p1.update();
-    gameState.p2.newPos();
-    gameState.p2.update();
+    ctx.fillStyle = '#1da1f2';
+    ctx.fillRect(gameState.p1.x, gameState.p1.y, gameState.p1.width, gameState.p1.height);
+    ctx.fillStyle = '#c82345';
+    ctx.fillRect(gameState.p2.x, gameState.p2.y, gameState.p2.width, gameState.p2.height);
   }
 
   handleMount(ctx) {
@@ -101,9 +119,8 @@ export default class Tanks extends Component {
 		// Set the game controls, Should probably change to be on the canvas, not window
 		window.addEventListener('keydown', (e) =>  {
 			let code = e.which || e.keyCode;
-      let fire = false;
-      let offsetX = 0;
-      let offsetY = 0;
+            let offsetX = 0;
+            let offsetY = 0;
 			if(code === 37) { //left
 				offsetX = -1;
 			} else if(code === 38) { //up
@@ -113,12 +130,12 @@ export default class Tanks extends Component {
 			} else if(code === 40) { //down
 				offsetY = -1;
 			}else if(code === 32){ //spacebar
-        fire = true;
-      }
+                this.props.socket.emit('tanks:fire');
+            }
 			// Send update only if valid movement
-			if (dir === '' && !fire) return;
+			if (offsetY === 0 && offsetX === 0) return;
 			e.preventDefault();
-			this.props.socket.emit('tanks:update-client', {offsetY: offsetY, offsetX: offsetX, fire:fire});
+			this.props.socket.emit('tanks:update-client', {offsetY: offsetY, offsetX: offsetX});
 		})
 	}
   componentWillUnmount() {
